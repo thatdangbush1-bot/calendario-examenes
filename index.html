@@ -8,6 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>Exámenes · FP</title>
 <script src="data.js"></script>
+<script src="notes.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -199,6 +200,65 @@ header { display: flex; align-items: flex-start; justify-content: space-between;
 .footer { text-align: center; margin-top: 26px; color: var(--muted); font-size: 12px; }
 .footer button { font-family: inherit; font-size: 12px; color: var(--accent); background: none; border: 0; cursor: pointer; padding: 2px; }
 
+/* ---- notebook ---- */
+.notes-wrap { display: none; padding: 0; overflow: hidden; min-height: 460px; }
+.notes-wrap.visible { display: flex; }
+.notes-side {
+  width: 232px; flex: 0 0 232px; padding: 10px; overflow-y: auto;
+  border-right: 1px solid var(--border); background: rgba(255,255,255,.02);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.notes-side .side-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; padding: 6px 8px 2px; }
+.subject-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  background: transparent; border: 0; border-radius: 12px; padding: 8px 10px; cursor: pointer;
+  font-family: inherit; color: var(--text); transition: .15s;
+}
+.subject-btn:hover { background: rgba(255,255,255,.06); }
+.subject-btn.active { background: rgba(255,255,255,.10); box-shadow: inset 0 0 0 1px var(--border); }
+.subject-btn .av {
+  width: 30px; height: 30px; border-radius: 9px; flex: 0 0 30px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #0b0f17;
+}
+.subject-btn .sb-body { flex: 1; min-width: 0; }
+.subject-btn .sb-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.subject-btn .nb-wc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.subject-btn .sb-dot { width: 6px; height: 6px; border-radius: 50%; flex: 0 0 6px; opacity: .9; }
+
+.notebook { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.nb-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+}
+.nb-head h2 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.nb-head h2 .nb-tag { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 12px currentColor; }
+.nb-head small { color: var(--muted); font-size: 12px; display: block; margin-top: 2px; }
+.nb-saved { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.nb-saved.ok { color: #22C55E; }
+
+.nb-page {
+  flex: 1; min-height: 380px; margin: 16px 20px 20px; border-radius: 8px; overflow: hidden;
+  background:
+    linear-gradient(to right, transparent 0 54px, rgba(244, 63, 94, .28) 54px 55px, transparent 55px),
+    repeating-linear-gradient(transparent 0 27px, rgba(139, 148, 167, .22) 27px 28px),
+    #f4f1ea;
+  box-shadow: 0 4px 30px rgba(0,0,0,.3);
+}
+.nb-page textarea {
+  width: 100%; height: 100%; min-height: 380px; resize: vertical; border: 0; outline: 0;
+  background: transparent; color: #23272f; font-family: "Space Grotesk", system-ui, sans-serif;
+  font-size: 14.5px; line-height: 28px; padding: 16px 16px 16px 66px;
+}
+.nb-page textarea::placeholder { color: rgba(35,39,47,.38); }
+
+@media (max-width: 640px) {
+  .notes-wrap { flex-direction: column; }
+  .notes-side { width: 100%; flex: 0 0 auto; flex-direction: row; flex-wrap: wrap; border-right: 0; border-bottom: 1px solid var(--border); }
+  .notes-side .side-label { width: 100%; }
+  .subject-btn { width: auto; flex: 1 1 45%; }
+}
+
 @media (max-width: 640px) {
   .grid, .dow { gap: 4px; }
   .day { min-height: 58px; padding: 5px; }
@@ -224,6 +284,7 @@ header { display: flex; align-items: flex-start; justify-content: space-between;
       <div class="toggle">
         <button id="tbCal" class="active" onclick="switchView('cal')">Calendario</button>
         <button id="tbList" onclick="switchView('list')">Lista</button>
+        <button id="tbNotes" onclick="switchView('notes')"><svg width="13" height="13" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:5px" aria-hidden="true"><path fill="#8B5CF6" d="M5 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path fill="none" stroke="#E9D5FF" stroke-width="1.7" stroke-linecap="round" d="M8 7.5h7M8 11h7M8 14.5h7"/><rect x="4.6" y="1.8" width="12.8" height="3" rx="1.5" fill="#6D28D9"/><rect x="4.6" y="3.1" width="12.8" height="1.9" rx="0.95" fill="#A78BFA" opacity=".55"/></svg>Libreta</button>
       </div>
       <button class="btn" id="btnExport" onclick="toggleExport()" title="Guardar cambios en local para subirlos">⬇ Exportar</button>
     </div>
@@ -256,18 +317,44 @@ header { display: flex; align-items: flex-start; justify-content: space-between;
     <div id="listBody"></div>
   </section>
 
+  <!-- NOTES VIEW -->
+  <section class="card notes-wrap" id="notesView">
+    <div class="notes-side" id="notesSide"></div>
+    <div class="notebook" id="notebook">
+      <div class="nb-head">
+        <div>
+          <h2 id="nbTitle">Elige una asignatura</h2>
+          <small id="nbMeta"></small>
+        </div>
+        <div id="nbSaved" class="nb-saved"></div>
+      </div>
+      <div class="nb-page" id="nbPage">
+        <textarea id="nbText" placeholder="Empieza a escribir…" spellcheck="false" oninput="noteTyped()"></textarea>
+      </div>
+    </div>
+  </section>
+
   <div class="export-panel card" id="exportPanel">
-    <p>Pega esto en un <b>chat de OpenCode</b> y te lo subo a GitHub, o guarda el archivo <b>data.js</b> y pídeme que lo pushee. El contenido ya está unido (datos del repo + tus cambios locales).</p>
+    <p>Pega esto en un <b>chat de OpenCode</b> y te lo subo a GitHub, o guarda el archivo y pídeme que lo pushee. Contenido ya unido: repo + tus cambios locales.</p>
+    <label style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Exámenes · data.js</label>
     <textarea id="exportArea" readonly></textarea>
-    <div style="display:flex;gap:8px;margin-top:10px">
+    <div style="display:flex;gap:8px;margin-top:6px">
       <button class="btn" onclick="downloadData()">⬇ Descargar data.js</button>
       <button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('exportArea').value)">📋 Copiar</button>
+    </div>
+    <div style="height:14px"></div>
+    <label style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em">Libreta · notes.js</label>
+    <textarea id="exportNotesArea" readonly></textarea>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button class="btn" onclick="downloadNotes()">⬇ Descargar notes.js</button>
+      <button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('exportNotesArea').value)">📋 Copiar</button>
     </div>
   </div>
 
   <div class="footer">
     Si has añadido exámenes con este navegador, quedarán guardados aquí también como “cambios locales”.
-    <br><button onclick="clearLocal()">Eliminar mis cambios locales</button>
+    <br><button onclick="clearLocal()">Eliminar mis cambios de exámenes</button> ·
+    <button onclick="clearNotesLocal()">Eliminar mis notas de libreta</button>
     <div id="versionTag" style="margin-top:8px;opacity:.7"></div>
   </div>
 </div>
@@ -328,12 +415,14 @@ const DOW = ["L","M","X","J","V","S","D"];
 const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MONTHS_gen = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 const LS_KEY = "calExamenes.v1";
-const APP_VERSION = "v4-2026-09-21";
+const LS_NOTES = "calNotas.v1";
+const APP_VERSION = "v5-2026-09-21";
 
-let view = "cal";
 let cursor = new Date(); cursor.setDate(1);
 let locals = [];   // cambios hechos en este navegador
-let repo = [];     // copia pura de window.EXAMS
+
+let notesLocal = {};
+let currentNote = null;
 
 function loadLocal(){
   try { locals = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
@@ -349,8 +438,8 @@ function loadLocal(){
 function saveLocal(){ localStorage.setItem(LS_KEY, JSON.stringify(locals)); }
 
 function mergeExams(){
-  repo = (window.EXAMS || []).map(e => ({...e}));
-  const combined = [...repo];
+  const repoExams = (window.EXAMS || []).map(e => ({...e}));
+  const combined = [...repoExams];
   const loc = new Set(locals.filter(l => l.__del).map(l => l.id));
   const locAdd = locals.filter(l => !l.__del);  // añadidos/editados
   for (const l of locAdd){
@@ -362,6 +451,7 @@ function mergeExams(){
 
 function reload(){
   loadLocal();
+  loadNotes();
   const all = mergeExams();
   renderAll();
   return all;
@@ -370,8 +460,7 @@ function reload(){
 /* ---------- calendar ---------- */
 let gridEl, dowEl;
 function renderAll(){
-  const v = document.getElementById("versionTag");
-  if (v) v.textContent = "Versión " + APP_VERSION + " · Repo: " + (window.EXAMS||[]).length + " · Local: " + locals.length;
+  updateCounts();
   try {
     renderCal(); renderList(); fillSubjectFilters();
   } catch (err) {
@@ -610,18 +699,22 @@ function closeModal(){
 /* ---------- nav / view ---------- */
 function moveMonth(d){ cursor.setDate(1); cursor.setMonth(cursor.getMonth()+d); renderCal(); }
 function switchView(v){
-  view = v;
   document.getElementById("tbCal").classList.toggle("active", v === "cal");
   document.getElementById("tbList").classList.toggle("active", v === "list");
+  document.getElementById("tbNotes").classList.toggle("active", v === "notes");
   document.getElementById("calView").style.display = v === "cal" ? "" : "none";
   const l = document.getElementById("listView");
   l.classList.toggle("visible", v === "list");
   l.style.display = v === "list" ? "" : "none";
+  const n = document.getElementById("notesView");
+  n.classList.toggle("visible", v === "notes");
+  n.style.display = v === "notes" ? "" : "none";
+  if (v === "notes") renderNotes();
 }
 function toggleExport(){
   const p = document.getElementById("exportPanel");
   p.classList.toggle("open");
-  if (p.classList.contains("open")) buildExport();
+  if (p.classList.contains("open")){ buildExport(); buildNotes(); }
 }
 function buildExport(){
   const all = mergeExams().filter(e => !e.__del).map(({__new, __del, ...e}) => e)
@@ -641,10 +734,133 @@ function downloadData(){
   a.href = URL.createObjectURL(blob); a.download = "data.js"; a.click();
   URL.revokeObjectURL(a.href);
 }
+function buildNotes(){
+  const merged = mergedNotes();
+  const entries = Object.keys(SUBJECTS).filter(k => (merged[k] || "").trim() !== "");
+  const content = entries.length === 0
+    ? "window.NOTES = {};"
+    : "window.NOTES = {\n" + entries.map(k => `  ${JSON.stringify(k)}: ${JSON.stringify(merged[k])}`).join(",\n") + "\n};";
+  const area = document.getElementById("exportNotesArea");
+  if (area) area.value = content;
+  return merged;
+}
+function downloadNotes(){
+  buildNotes();
+  const blob = new Blob([document.getElementById("exportNotesArea").value], {type:"text/javascript"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "notes.js"; a.click();
+  URL.revokeObjectURL(a.href);
+}
 function clearLocal(){
   if (!confirm("¿Eliminar los exámenes que hayas añadido/borrado desde este navegador?")) return;
   localStorage.removeItem(LS_KEY);
   reload();
+}
+function clearNotesLocal(){
+  if (!confirm("¿Eliminar las notas de libreta guardadas en este navegador?")) return;
+  localStorage.removeItem(LS_NOTES);
+  notesLocal = {};
+  renderNotes();
+}
+
+/* ---------- notebook ---------- */
+function loadNotes(){
+  try { notesLocal = JSON.parse(localStorage.getItem(LS_NOTES) || "{}"); }
+  catch(e){ notesLocal = {}; }
+  if (!notesLocal || typeof notesLocal !== "object" || Array.isArray(notesLocal)) notesLocal = {};
+  for (const k of Object.keys(notesLocal)){
+    if (typeof notesLocal[k] !== "string") notesLocal[k] = "";
+  }
+}
+function saveNotes(){ localStorage.setItem(LS_NOTES, JSON.stringify(notesLocal)); }
+function mergedNotes(){
+  const merged = {...(window.NOTES || {})};
+  for (const [k, v] of Object.entries(notesLocal)) if (v) merged[k] = v;
+  return merged;
+}
+
+function wordCount(text){
+  const t = (text || "").trim();
+  if (!t) return 0;
+  return t.split(/\s+/).filter(w => /[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ]/.test(w)).length;
+}
+
+function renderNotes(){
+  if (!currentNote || !SUBJECTS[currentNote]) currentNote = Object.keys(SUBJECTS)[0];
+  const side = document.getElementById("notesSide");
+  const merged = mergedNotes();
+  side.innerHTML = `<div class="side-label">Asignaturas</div>` +
+    Object.entries(SUBJECTS).map(([k, s]) => {
+      const txt = merged[k] || "";
+      const words = wordCount(txt);
+      return `<button class="subject-btn${currentNote===k?' active':''}" id="nb-${k}" onclick="selectNote('${k}')">
+        <span class="av" style="background:${s.color}">${escapeHtml(s.name[0])}</span>
+        <span class="sb-body"><span class="sb-name">${escapeHtml(s.name)}</span>${words?`<div class="nb-wc">${words} palabras</div>`:""}</span>
+        <span class="sb-dot" style="background:${words?s.color:'rgba(255,255,255,.15)'}"></span>
+      </button>`;
+    }).join("");
+  applyNote();
+}
+
+function selectNote(code){
+  if (!SUBJECTS[code]) return;
+  currentNote = code;
+  renderNotes();
+}
+
+function applyNote(){
+  if (!currentNote) return;
+  const s = SUBJECTS[currentNote];
+  const text = notesLocal[currentNote] || "";
+  const ta = document.getElementById("nbText");
+  if (ta.value !== text) ta.value = text;
+  document.getElementById("nbTitle").innerHTML =
+    `<span class="nb-tag" style="background:${s.color};color:${s.color}"></span>${escapeHtml(s.name)}`;
+  document.getElementById("nbMeta").textContent = noteMetaString();
+  document.getElementById("nbSaved").className = "nb-saved";
+  document.getElementById("nbSaved").textContent = "";
+}
+
+function noteMetaString(){
+  if (!currentNote) return "";
+  const text = notesLocal[currentNote] || "";
+  const repoHas = (window.NOTES || {})[currentNote] || "";
+  const words = wordCount(text);
+  if (repoHas.trim()){
+    return text.trim() === repoHas.trim()
+      ? "Sin cambios de este navegador · " + words + " palabras"
+      : "Cambios guardados en este navegador · " + words + " palabras";
+  }
+  return words ? words + " palabras" : "Página en blanco";
+}
+
+function noteTyped(){
+  if (!currentNote) return;
+  const ta = document.getElementById("nbText");
+  const words = wordCount(ta.value);
+  notesLocal[currentNote] = ta.value;
+  saveNotes();
+  document.getElementById("nbMeta").textContent = noteMetaString();
+  const btn = document.getElementById("nb-" + currentNote);
+  if (btn){
+    let d = btn.querySelector(".nb-wc");
+    if (words){ if(!d){ d = document.createElement("div"); d.className = "nb-wc"; btn.querySelector(".sb-body").appendChild(d); } d.textContent = words + " palabras"; }
+    else if (d) d.remove();
+    btn.querySelector(".sb-dot").style.background = words ? SUBJECTS[currentNote].color : "rgba(255,255,255,.15)";
+  }
+  updateCounts();
+  const saved = document.getElementById("nbSaved");
+  saved.className = "nb-saved ok";
+  saved.textContent = "✓ Guardado";
+  clearTimeout(window.__nbTimer);
+  window.__nbTimer = setTimeout(() => { saved.className = "nb-saved"; saved.textContent = ""; }, 1400);
+}
+
+function updateCounts(){
+  const v = document.getElementById("versionTag");
+  if (!v) return;
+  const notesCount = Object.values(mergedNotes()).filter(t => t.trim()).length;
+  v.textContent = "Versión " + APP_VERSION + " · Repo: " + (window.EXAMS||[]).length + " · Local: " + locals.length + " · Notas: " + notesCount;
 }
 
 /* ---------- utils ---------- */
@@ -656,10 +872,7 @@ function fmtLong(d){
 function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
 /* english header for the browser date input */
-(function(){
-  const inp = document.getElementById("fDateInput"), lbl = document.querySelector("label[for]");
-  // nada que traduzca; el input date usará el locale del navegador
-})();
+(function(){ /* el input date usa el locale del navegador; aquí no hay nada que traducir */ })();
 
 document.addEventListener("DOMContentLoaded", reload);
 </script>
