@@ -13,14 +13,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #0b0f17;
+  /* ---- color ---- */
+  --bg: #0a0e16;
   --card: rgba(255, 255, 255, 0.055);
   --card2: rgba(255, 255, 255, 0.035);
   --border: rgba(255, 255, 255, 0.09);
   --text: #eef2f7;
-  --muted: #8b94a7;
+  --muted: #9099ad;
   --accent: #4ea1ff;
-  --today: rgba(78, 161, 255, 0.16);
+  --accent2: #8b5cf6;
+  --ok: #34d399;
+  --danger: #fb7185;
+  --warn: #fbbf24;
+  --today: rgba(78, 161, 255, 0.17);
+  /* ---- espacio (escala 4px) ---- */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 28px; --s-7: 40px;
+  /* ---- radio ---- */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-full: 999px;
+  /* ---- sombra ---- */
+  --sh-sm: 0 1px 2px rgba(0,0,0,.3);
+  --sh-md: 0 4px 14px rgba(0,0,0,.28);
+  --sh-lg: 0 24px 60px rgba(0,0,0,.5);
+  /* ---- movimiento ---- */
+  --dur: .25s; --ease: cubic-bezier(.2,.7,.3,1); --ease-bounce: cubic-bezier(.34,1.56,.4,1);
+  /* ---- glass header ---- */
+  --header-bg: rgba(10, 14, 22, 0.72); --header-blur: 16px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,8 +65,19 @@ body {
 
 .wrap {
   position: relative; z-index: 1;
-  max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px;
+  max-width: 1120px; margin: 0 auto; padding: 24px 20px 60px;
 }
+
+header {
+  position: sticky; top: 12px; z-index: 40;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap; margin-bottom: 24px; padding: 10px 14px;
+  background: var(--glass); border: 1px solid var(--border); border-radius: var(--r-xl);
+  backdrop-filter: blur(var(--header-blur)) saturate(1.4); -webkit-backdrop-filter: blur(var(--header-blur)) saturate(1.4);
+  box-shadow: var(--sh-md);
+  animation: headIn var(--dur) var(--ease) both;
+}
+@keyframes headIn { from { opacity: 0; transform: translateY(-8px); } }
 
 /* ---- header ---- */
 header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
@@ -83,7 +111,9 @@ header { display: flex; align-items: flex-start; justify-content: space-between;
 
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; backdrop-filter: blur(14px); }
 
-/* ---- calendar ---- */
+/* =====================================================================
+   CALENDAR
+   ===================================================================== */
 .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; }
 .cal-nav h2 { font-size: 18px; font-weight: 700; text-transform: capitalize; }
 .mnav { display: flex; gap: 6px; }
@@ -108,7 +138,15 @@ header { display: flex; align-items: flex-start; justify-content: space-between;
 .day:hover { border-color: var(--border); background: rgba(255,255,255,.07); }
 .day.out { background: transparent; cursor: default; }
 .day.out:hover { background: transparent; }
-.day.today { background: var(--today); border-color: rgba(78,161,255,.45); }
+.day.today {
+  background: var(--today);
+  border: 1px solid rgba(78,161,255,.50);
+  box-shadow: 0 0 0 3px rgba(78,161,255,.14), inset 0 0 18px rgba(78,161,255,.10);
+}
+.day.today::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(68% 58% at 50% 0%, rgba(78,161,255,.14), transparent 70%);
+}
 .day .num { font-size: 13px; font-weight: 600; color: var(--muted); }
 .day.today .num { color: var(--accent); }
 .day.wknd .num { opacity: .4; }
