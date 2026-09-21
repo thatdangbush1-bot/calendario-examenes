@@ -785,8 +785,9 @@ function loadNotes(){
 }
 function saveNotes(){ localStorage.setItem(LS_NOTES, JSON.stringify(notesLocal)); }
 function mergedNotes(){
+  // La fuente compartida es el repo (window.NOTES). Lo local solo se usa si el repo no tiene esa asignatura.
   const merged = {...(window.NOTES || {})};
-  for (const [k, v] of Object.entries(notesLocal)) if (v) merged[k] = v;
+  for (const [k, v] of Object.entries(notesLocal)) if (v && !(k in merged)) merged[k] = v;
   return merged;
 }
 
