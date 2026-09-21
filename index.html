@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Exámenes · FP</title>
 <script src="data.js"></script>
 <style>
@@ -265,6 +268,7 @@ header { display: flex; align-items: flex-start; justify-content: space-between;
   <div class="footer">
     Si has añadido exámenes con este navegador, quedarán guardados aquí también como “cambios locales”.
     <br><button onclick="clearLocal()">Eliminar mis cambios locales</button>
+    <div id="versionTag" style="margin-top:8px;opacity:.7"></div>
   </div>
 </div>
 
@@ -324,13 +328,24 @@ const DOW = ["L","M","X","J","V","S","D"];
 const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MONTHS_gen = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 const LS_KEY = "calExamenes.v1";
+const APP_VERSION = "v4-2026-09-21";
 
 let view = "cal";
 let cursor = new Date(); cursor.setDate(1);
 let locals = [];   // cambios hechos en este navegador
 let repo = [];     // copia pura de window.EXAMS
 
-function loadLocal(){ try { locals = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e){ locals = []; } }
+function loadLocal(){
+  try { locals = JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
+  catch(e){ locals = []; }
+  if (!Array.isArray(locals)) locals = [];
+  locals = locals.filter(l => {
+    if (!l || typeof l !== "object") return false;
+    if (l.__del) return true;
+    return typeof l.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(l.date);
+  });
+  saveLocal();
+}
 function saveLocal(){ localStorage.setItem(LS_KEY, JSON.stringify(locals)); }
 
 function mergeExams(){
@@ -354,7 +369,19 @@ function reload(){
 
 /* ---------- calendar ---------- */
 let gridEl, dowEl;
-function renderAll(){ renderCal(); renderList(); fillSubjectFilters(); }
+function renderAll(){
+  const v = document.getElementById("versionTag");
+  if (v) v.textContent = "Versión " + APP_VERSION + " · Repo: " + (window.EXAMS||[]).length + " · Local: " + locals.length;
+  try {
+    renderCal(); renderList(); fillSubjectFilters();
+  } catch (err) {
+    console.error("Error al renderizar:", err);
+    const grid = document.getElementById("grid");
+    if (grid) grid.innerHTML = `<div class="empty">Ha ocurrido un error: ${escapeHtml(err.message)}. Recarga la página o elimina tus cambios locales (abajo).</div>`;
+    const body = document.getElementById("listBody");
+    if (body) body.innerHTML = "";
+  }
+}
 
 function renderCal(){
   gridEl = gridEl || document.getElementById("grid");
