@@ -336,8 +336,7 @@ function saveLocal(){ localStorage.setItem(LS_KEY, JSON.stringify(locals)); }
 function mergeExams(){
   repo = (window.EXAMS || []).map(e => ({...e}));
   const combined = [...repo];
-  const repoIds = new Set(repo.map(e => e.id));
-  const loc = locals.filter(l => l.__del);      // borrados locales
+  const loc = new Set(locals.filter(l => l.__del).map(l => l.id));
   const locAdd = locals.filter(l => !l.__del);  // añadidos/editados
   for (const l of locAdd){
     if (l.__new){ combined.unshift(l); }
