@@ -316,8 +316,8 @@ const SUBJECTS = {
 };
 
 const TYPES = {
-  Parcial:"#F59E04", Examen:"#F43F5E", Final:"#E11D48", Recuperación:"#8B5CF6",
-  Entrega:"#14B8A6", Trabajo:"#38BDF7", Práctica:"#22C55E", Otro:"#94A3B8",
+  "Examen Teórico":"#F43F5E", "Examen Práctico":"#F59E04", Deberes:"#38BDF7",
+  "Proyecto en grupo":"#8B5CF6", "Proyecto Individual":"#22C55E",
 };
 
 const DOW = ["L","M","X","J","V","S","D"];
@@ -407,6 +407,11 @@ function fillSubjectFilters(){
   const kept = filt.value;
   filt.innerHTML = `<option value="">Todas las asignaturas</option>` + Object.entries(SUBJECTS).map(([k,v]) => `<option value="${k}">${v.name}</option>`).join("");
   if (kept) filt.value = kept;
+
+  const tsel = document.getElementById("fType");
+  const tkept = tsel.value;
+  tsel.innerHTML = Object.keys(TYPES).map(t => `<option value="${t}">${t}</option>`).join("");
+  if (tkept) tsel.value = tkept;
 }
 
 function renderList(){
@@ -457,7 +462,7 @@ function renderList(){
 
 function itemHTML(e){
   const s = SUBJECTS[e.subject] || {name:e.subject, color:"#64748b"};
-  const t = TYPES[e.type] || TYPES.Otro;
+  const t = TYPES[e.type] || "#94A3B8";
   const d = new Date(e.date + "T00:00:00");
   const dias = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
   const day = daysLeft(e.date);
@@ -494,7 +499,7 @@ function openDay(ds){
       const s = SUBJECTS[e.subject] || {name:e.subject, color:"#64748b"};
       return `<div class="eitem">
         <div class="grow">
-          <b>${escapeHtml(s.name)}</b> <small style="color:${TYPES[e.type]||TYPES.Otro}">${e.type||""}</small>
+          <b>${escapeHtml(s.name)}</b> <small style="color:${TYPES[e.type]||"#94A3B8"}">${e.type||""}</small>
           ${e.notes?`<br><small>${escapeHtml(e.notes)}</small>`:""}
         </div>
         <button class="edit" onclick="editExam('${e.id}')">✎</button>
@@ -517,7 +522,7 @@ function editExam(id){
   const src = (locals.find(x => x.id === id && !x.__del) && !l ? locals.find(x => x.id === id) : (l || e));
   if (!src) return;
   document.getElementById("fSubject2").value = src.subject || "seginf";
-  document.getElementById("fType").value = src.type || "Examen";
+  document.getElementById("fType").value = src.type || "Examen Teórico";
   document.getElementById("fNotes").value = src.notes || "";
   document.getElementById("fDate").value = src.date;
   document.getElementById("fDateInput").value = src.date;
@@ -527,7 +532,7 @@ function editExam(id){
 
 function resetForm(){
   document.getElementById("fSubject2").value = Object.keys(SUBJECTS)[0];
-  document.getElementById("fType").value = "Examen";
+  document.getElementById("fType").value = "Examen Teórico";
   document.getElementById("fNotes").value = "";
   window._editingId = null;
 }
