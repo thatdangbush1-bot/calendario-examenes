@@ -203,6 +203,15 @@ header { display: flex; align-items: flex-start; justify-content: space-between;
 /* ---- notebook ---- */
 .notes-wrap { display: none; padding: 0; overflow: hidden; min-height: calc(100vh - 148px); }
 .notes-wrap.visible { display: flex; }
+/* libreta a pantalla completa */
+body.view-notes .wrap { max-width: none; width: 100%; padding: 12px 16px 16px; }
+body.view-notes .notes-wrap {
+  width: 100%; min-height: calc(100vh - 118px); border-radius: 16px;
+  margin: 0; padding: 0;
+}
+body.view-notes .notes-side { width: 320px; flex: 0 0 320px; }
+body.view-notes .subject-btn .sb-name { white-space: normal; overflow: visible; text-overflow: clip; }
+body.view-notes .subject-btn .sb-wc { font-size: 11px; }
 .notes-side {
   width: 292px; flex: 0 0 292px; padding: 12px; overflow-y: auto;
   border-right: 1px solid var(--border); background: rgba(255,255,255,.02);
@@ -285,7 +294,7 @@ header { display: flex; align-items: flex-start; justify-content: space-between;
       <div class="toggle">
         <button id="tbCal" class="active" onclick="switchView('cal')">Calendario</button>
         <button id="tbList" onclick="switchView('list')">Lista</button>
-        <button id="tbNotes" onclick="switchView('notes')"><svg width="13" height="13" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:5px" aria-hidden="true"><path fill="#8B5CF6" d="M5 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path fill="none" stroke="#E9D5FF" stroke-width="1.7" stroke-linecap="round" d="M8 7.5h7M8 11h7M8 14.5h7"/><rect x="4.6" y="1.8" width="12.8" height="3" rx="1.5" fill="#6D28D9"/><rect x="4.6" y="3.1" width="12.8" height="1.9" rx="0.95" fill="#A78BFA" opacity=".55"/></svg>Notas</button>
+        <button id="tbNotes" onclick="switchView('notes')">Notas</button>
       </div>
       <button class="btn" id="btnExport" onclick="toggleExport()" title="Guardar cambios en local para subirlos">⬇ Exportar</button>
     </div>
@@ -700,6 +709,7 @@ function closeModal(){
 /* ---------- nav / view ---------- */
 function moveMonth(d){ cursor.setDate(1); cursor.setMonth(cursor.getMonth()+d); renderCal(); }
 function switchView(v){
+  document.body.classList.toggle("view-notes", v === "notes");
   document.getElementById("tbCal").classList.toggle("active", v === "cal");
   document.getElementById("tbList").classList.toggle("active", v === "list");
   document.getElementById("tbNotes").classList.toggle("active", v === "notes");
