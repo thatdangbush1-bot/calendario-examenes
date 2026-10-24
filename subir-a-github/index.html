@@ -1,0 +1,1259 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Repaso RA1 Seguridad</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Cuaderno de apuntes técnico: columna de lectura ancha, índice lateral, y un color fijo por tipo de palabra */
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --surface-2:#f1efea; --surface-3:#e7e4dd;
+  --fg:#1c1b19; --fg-soft:#5d5a54; --line:#dcd8d0; --line-soft:#eae7e0;
+  /* colores con significado */
+  --c-term:#4338ca;  --c-term-bg:#eceafe;   /* concepto / término que hay que saber nombrar */
+  --c-num:#0e7490;   --c-num-bg:#dff1f5;    /* cifra, unidad, dato exacto */
+  --c-no:#b4232a;    --c-no-bg:#fbe6e6;     /* prohibido, nunca, incorrecto, riesgo */
+  --c-si:#15803d;    --c-si-bg:#e2f3e6;     /* correcto, recomendado, ventaja */
+  --c-def:#8a5a00;   --c-def-bg:#fcf0d4;    /* definición literal a memorizar */
+  --accent:#4338ca;
+  --font-ui:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Source Sans 3','Segoe UI',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --fs:18px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141518; --surface:#1b1d21; --surface-2:#23262b; --surface-3:#2d3137;
+  --fg:#e9e8e4; --fg-soft:#a3a29d; --line:#343840; --line-soft:#282b31;
+  --c-term:#a5b4fc; --c-term-bg:#231f4d;
+  --c-num:#67e8f9; --c-num-bg:#113038;
+  --c-no:#fca5a5; --c-no-bg:#3a1b1c;
+  --c-si:#86efac; --c-si-bg:#14301f;
+  --c-def:#fcd34d; --c-def-bg:#352a0c;
+  --accent:#a5b4fc; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#141518; --surface:#1b1d21; --surface-2:#23262b; --surface-3:#2d3137;
+  --fg:#e9e8e4; --fg-soft:#a3a29d; --line:#343840; --line-soft:#282b31;
+  --c-term:#a5b4fc; --c-term-bg:#231f4d;
+  --c-num:#67e8f9; --c-num-bg:#113038;
+  --c-no:#fca5a5; --c-no-bg:#3a1b1c;
+  --c-si:#86efac; --c-si-bg:#14301f;
+  --c-def:#fcd34d; --c-def-bg:#352a0c;
+  --accent:#a5b4fc; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:var(--fs);line-height:1.68;margin:0;letter-spacing:.002em}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+h1,h2,h3,h4,.ui{font-family:var(--font-ui);font-weight:700}
+h1,h2,h3{text-wrap:balance;line-height:1.18;margin:0;letter-spacing:-.015em}
+p{margin:0 0 .85em}
+code,kbd,.mono{font-family:var(--font-mono);font-size:.85em;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:5px;padding:.1em .35em;white-space:nowrap}
+pre{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;margin:14px 0;font-family:var(--font-mono);font-size:.84rem;line-height:1.6}
+pre code{background:none;border:0;padding:0;white-space:pre}
+a{color:var(--c-term)}
+:focus-visible{outline:2px solid var(--c-term);outline-offset:2px;border-radius:4px}
+::selection{background:var(--c-def-bg);color:var(--fg)}
+
+/* ====== PALABRAS CON SIGNIFICADO ====== */
+b,strong,.t{color:var(--c-term);font-weight:700}            /* término clave */
+.n{color:var(--c-num);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}  /* cifra o dato exacto */
+.no{color:var(--c-no);font-weight:700}                       /* prohibido / nunca / riesgo */
+.si{color:var(--c-si);font-weight:700}                       /* correcto / recomendado */
+.def{background:var(--c-def-bg);color:var(--fg);font-weight:600;border-radius:4px;padding:.05em .25em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.k{font-family:var(--font-ui);font-weight:700;font-size:1.01em;color:var(--c-term)}
+em,i{color:var(--fg-soft)}
+u{text-decoration-color:var(--c-term);text-decoration-thickness:2px;text-underline-offset:3px}
+
+/* leyenda */
+.leyenda{display:flex;flex-wrap:wrap;gap:6px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 22px;font-size:.85rem}
+.leyenda span{font-family:var(--font-ui);font-weight:700;font-size:.8rem;white-space:nowrap}
+.leyenda .lg-t{color:var(--c-term)}.leyenda .lg-n{color:var(--c-num)}.leyenda .lg-no{color:var(--c-no)}.leyenda .lg-si{color:var(--c-si)}
+.leyenda .lg-d{background:var(--c-def-bg);border-radius:4px;padding:.1em .3em;color:var(--fg)}
+.leyenda .tt{font-family:var(--font-ui);font-weight:800;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft);width:100%}
+
+/* ====== CABECERA ====== */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.hwrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;max-width:1220px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.brand{font-family:var(--font-ui);font-weight:800;letter-spacing:-.025em;font-size:1.02rem;display:flex;align-items:center;gap:9px;margin-right:auto;color:var(--fg)}
+.dot{width:9px;height:9px;border-radius:2px;background:var(--c-term);box-shadow:0 0 0 4px var(--c-term-bg);flex:none}
+.count{font-family:var(--font-ui);font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--c-no);background:var(--c-no-bg);border-radius:6px;padding:4px 9px;white-space:nowrap}
+.tools{display:flex;gap:5px;align-items:center}
+.iconbtn{font-family:var(--font-ui);font-size:.78rem;font-weight:700;background:var(--surface-2);border:1px solid var(--line);color:var(--fg-soft);padding:5px 10px;border-radius:7px;cursor:pointer;line-height:1.3}
+.iconbtn:hover{border-color:var(--c-term);color:var(--c-term)}
+nav{display:flex;gap:3px;flex-wrap:wrap;width:100%}
+nav button{font-family:var(--font-ui);font-size:.85rem;font-weight:700;background:none;border:1px solid transparent;color:var(--fg-soft);padding:7px 13px;border-radius:8px;cursor:pointer}
+nav button:hover{background:var(--surface-2);color:var(--fg)}
+nav button[aria-current="true"]{background:var(--c-term);color:var(--bg);border-color:var(--c-term)}
+:root[data-theme="dark"] nav button[aria-current="true"]{color:#15162b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) nav button[aria-current="true"]{color:#15162b}}
+
+/* ====== CONTENEDOR ====== */
+main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:26px 80px;max-width:1220px;margin:0 auto}
+.lede{max-width:68ch;color:var(--fg-soft)}
+.eyebrow{font-family:var(--font-ui);font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--c-term)}
+.sechead{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.sechead h2{font-size:clamp(1.6rem,4.4vw,2.3rem);font-weight:800}
+
+/* ====== ÍNDICE + TEMA ====== */
+.cols{display:grid;grid-template-columns:252px minmax(0,1fr);gap:34px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:1fr;gap:18px}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 104px);display:flex;flex-direction:column;gap:3px;min-width:0}
+.toc button{display:flex;gap:9px;align-items:flex-start;font-family:var(--font-ui);font-size:.88rem;font-weight:700;text-align:left;background:none;border:1px solid transparent;color:var(--fg-soft);padding:9px 11px;border-radius:8px;cursor:pointer;min-width:0;line-height:1.3}
+.toc button .tn{font-variant-numeric:tabular-nums;color:var(--c-num);flex:none}
+.toc button .tl{min-width:0;overflow-wrap:break-word;hyphens:auto}
+.toc button:hover{color:var(--fg);background:var(--surface-2)}
+.toc button[aria-current="true"]{color:var(--c-term);background:var(--c-term-bg);border-color:var(--c-term)}
+.toc button[aria-current="true"] .tn{color:var(--c-term)}
+@media (max-width:900px){
+ .toc{position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:thin}
+ .toc button{white-space:nowrap;flex:none;border:1px solid var(--line)}
+ .toc button .tl{overflow-wrap:normal}
+}
+.topic{min-width:0}
+.topic h3{font-size:clamp(1.45rem,3.6vw,1.85rem);font-weight:800;margin-bottom:5px}
+.topic .ra{font-family:var(--font-ui);font-size:.74rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--c-num);margin-bottom:3px}
+.topic .sub-ra{font-size:.95rem;color:var(--fg-soft);max-width:68ch;margin-bottom:4px}
+.block{margin-top:30px;max-width:78ch}
+.block > h4{font-family:var(--font-ui);font-size:1.12rem;font-weight:800;letter-spacing:-.01em;color:var(--fg);padding-bottom:8px;border-bottom:2px solid var(--c-term);margin-bottom:14px}
+.block ul{margin:0 0 .6em;padding-left:1.25em}
+.block li{margin-bottom:9px}
+.block li::marker{color:var(--c-num)}
+.sub{font-family:var(--font-ui);font-size:.82rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft);margin:18px 0 9px}
+ol.steps{padding-left:1.45em;margin:0 0 .6em}
+ol.steps li{margin-bottom:9px}
+ol.steps li::marker{font-family:var(--font-ui);font-weight:800;color:var(--c-num)}
+
+/* ====== TABLAS ====== */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:16px 0;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.95rem;min-width:380px}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line-soft);vertical-align:top;line-height:1.5}
+th{font-family:var(--font-ui);font-size:.75rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-soft);background:var(--surface-2);border-bottom:1px solid var(--line)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--c-num);font-weight:700}
+
+/* ====== AVISOS ====== */
+.note{border-radius:10px;padding:14px 16px;margin:18px 0;font-size:.97rem;border:1px solid;border-left-width:4px}
+.note .lbl{font-family:var(--font-ui);font-size:.72rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;display:block;margin-bottom:6px}
+.note :last-child{margin-bottom:0}
+.tip{background:var(--c-si-bg);border-color:var(--c-si)}.tip .lbl{color:var(--c-si)}
+.trap{background:var(--c-no-bg);border-color:var(--c-no)}.trap .lbl{color:var(--c-no)}
+.form{background:var(--c-def-bg);border-color:var(--c-def)}.form .lbl{color:var(--c-def)}
+.form .eq{font-family:var(--font-mono);font-size:1.02rem;font-weight:600;display:block;margin:10px 0;padding:8px 11px;background:var(--surface);border:1px solid var(--line);border-radius:7px;overflow-x:auto;color:var(--fg)}
+.note pre{background:var(--surface);margin:10px 0}
+
+/* ====== GLOSARIO ====== */
+.search{width:100%;max-width:440px;font-family:var(--font-body);font-size:1rem;padding:11px 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--fg)}
+.glist{display:grid;gap:11px;margin-top:18px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.gitem{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c-term);border-radius:9px;padding:13px 15px;min-width:0}
+.gitem dt{font-family:var(--font-ui);font-weight:800;font-size:1rem;margin-bottom:4px;color:var(--c-term)}
+.gitem dd{margin:0;font-size:.94rem;color:var(--fg)}
+.gitem .tag{font-family:var(--font-ui);font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--c-num);display:block;margin-top:8px}
+
+/* ====== FLASHCARDS ====== */
+.fcwrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c-term);border-radius:14px;padding:32px 26px;min-height:250px;display:flex;flex-direction:column;justify-content:center;gap:16px;cursor:pointer;text-align:center}
+.card .q{font-family:var(--font-ui);font-size:1.3rem;font-weight:800;letter-spacing:-.015em}
+.card .a{font-size:1.02rem;border-top:1px solid var(--line);padding-top:16px;text-align:left;line-height:1.6}
+.card .hintflip{font-family:var(--font-ui);font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-soft)}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.btn{font-family:var(--font-ui);font-size:.88rem;font-weight:700;padding:10px 17px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.btn:hover{border-color:var(--c-term);color:var(--c-term)}
+.btn.primary{background:var(--c-term);border-color:var(--c-term);color:var(--bg)}
+:root[data-theme="dark"] .btn.primary{color:#15162b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#15162b}}
+.btn.primary:hover{opacity:.88;color:var(--bg)}
+:root[data-theme="dark"] .btn.primary:hover{color:#15162b}
+.btn:disabled{opacity:.42;cursor:default}
+.meta{font-family:var(--font-ui);font-size:.82rem;font-weight:600;color:var(--fg-soft);text-align:center;font-variant-numeric:tabular-nums}
+
+/* ====== SIMULACRO ====== */
+.examintro{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:18px 0 22px}
+.part{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c-num);border-radius:11px;padding:16px}
+.part .n{font-family:var(--font-ui);font-size:2.1rem;font-weight:800;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums;color:var(--c-num)}
+.part .t{font-family:var(--font-ui);font-weight:800;font-size:.96rem;margin-top:6px}
+.part .p{font-size:.88rem;color:var(--fg-soft);line-height:1.45}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:17px 19px;margin-bottom:12px}
+.qhead{display:flex;gap:11px;align-items:baseline;margin-bottom:12px}
+.qnum{font-family:var(--font-ui);font-size:.76rem;font-weight:800;color:var(--c-num);background:var(--c-num-bg);border-radius:6px;padding:3px 8px;white-space:nowrap;flex:none;font-variant-numeric:tabular-nums}
+.qtext{font-weight:600;min-width:0}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{display:flex;gap:11px;align-items:flex-start;padding:10px 13px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:.97rem;background:var(--bg)}
+.opt:hover{border-color:var(--c-term)}
+.opt input{margin:5px 0 0;flex:none;accent-color:var(--c-term)}
+.opt.good{background:var(--c-si-bg);border-color:var(--c-si)}
+.opt.bad{background:var(--c-no-bg);border-color:var(--c-no)}
+textarea{width:100%;font-family:var(--font-body);font-size:1rem;line-height:1.6;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);resize:vertical;min-height:84px}
+.sol{margin-top:13px;background:var(--surface-2);border-left:4px solid var(--c-si);border-radius:0 9px 9px 0;padding:13px 15px;font-size:.96rem}
+.sol .lbl{font-family:var(--font-ui);font-size:.7rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--c-si);display:block;margin-bottom:6px}
+.selfrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.selfrow .lab{font-family:var(--font-ui);font-size:.76rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-soft);margin-right:3px}
+.sbtn{font-family:var(--font-ui);font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--fg-soft);cursor:pointer}
+.sbtn[aria-pressed="true"]{color:var(--bg);border-color:transparent}
+:root[data-theme="dark"] .sbtn[aria-pressed="true"]{color:#15162b}
+.sbtn.s1[aria-pressed="true"]{background:var(--c-si)}
+.sbtn.s05[aria-pressed="true"]{background:var(--c-def)}
+.sbtn.s0[aria-pressed="true"]{background:var(--c-no)}
+.partbar{font-family:var(--font-ui);font-weight:800;font-size:1.18rem;letter-spacing:-.015em;margin:34px 0 14px;padding-bottom:9px;border-bottom:2px solid var(--fg);display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.partbar span{font-size:.82rem;font-weight:700;color:var(--c-num);letter-spacing:0}
+.scorecard{background:var(--surface);border:1px solid var(--line);border-top:5px solid var(--c-term);border-radius:13px;padding:24px;margin:20px 0;text-align:center}
+.scorecard .big{font-family:var(--font-ui);font-size:3.6rem;font-weight:800;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums;color:var(--c-term)}
+.scorecard .lbl{font-family:var(--font-ui);font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-soft)}
+.brk{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:16px;font-family:var(--font-ui);font-size:.88rem;font-weight:600;font-variant-numeric:tabular-nums}
+.brk div{color:var(--fg-soft)}
+.brk b{display:block;font-size:1.3rem;color:var(--c-num);font-weight:800}
+.sticky-actions{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));margin:26px -100vw 0;box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+.sticky-inner{max-width:1220px;margin:0 auto;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.hidden{display:none}
+.pill{display:inline-block;font-family:var(--font-ui);font-size:.72rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:6px;background:var(--c-term-bg);color:var(--c-term);margin-bottom:9px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="brand"><span class="dot"></span>Seguridad Informática · RA1</div>
+    <div class="count" id="countdown">Examen: lunes</div>
+    <div class="tools">
+      <button class="iconbtn" id="fsdown" title="Letra más pequeña">A−</button>
+      <button class="iconbtn" id="fsup" title="Letra más grande">A+</button>
+      <button class="iconbtn" id="themebtn">Tema</button>
+    </div>
+    <nav id="nav"></nav>
+  </div>
+</header>
+<main id="main"></main>
+
+<script>
+/* ============ TEMARIO ============ */
+const TEMAS = [
+{id:"t1", short:"Introducción", n:1, title:"Introducción a la seguridad informática", ra:"Conceptos base · CIDAN · amenaza, vulnerabilidad y riesgo", blocks:[
+ {h:"Qué es y qué protegemos", html:`<ul>
+ <li>La <b>seguridad informática</b> es el conjunto de <span class='def'>herramientas, técnicas, procedimientos, dispositivos y políticas</span> destinados a proteger los sistemas y la información. Memoriza los cinco: es una definición de enunciado.</li>
+ <li>La información es uno de los <b>activos más valiosos</b> de cualquier organización.</li>
+ <li>Qué debemos proteger: <b>información, hardware, software, redes y usuarios</b>.</li>
+ <li>Sin medidas sufrimos: robo de información, pérdida de datos, interrupción de servicios, fraudes y suplantaciones, pérdidas económicas y daños reputacionales.</li></ul>`},
+ {h:"Modelo CIDAN — los 5 objetivos", html:`<div class="tw"><table><thead><tr><th>Objetivo</th><th>Garantiza que…</th><th>Ejemplos del temario</th></tr></thead><tbody>
+ <tr><td><span class="k">Confidencialidad</span></td><td>solo las personas <b>autorizadas</b> acceden a la información</td><td>contraseñas, cifrado, control de acceso, certificados digitales</td></tr>
+ <tr><td><span class="k">Integridad</span></td><td>los datos <span class='no'>no se modifican</span> de forma no autorizada</td><td>funciones hash, copias de seguridad, control de cambios</td></tr>
+ <tr><td><span class="k">Disponibilidad</span></td><td>sistemas y datos están <b>accesibles cuando se necesitan</b></td><td>SAI, RAID, sistemas redundantes, alta disponibilidad</td></tr>
+ <tr><td><span class="k">Autenticidad</span></td><td>se puede <b>comprobar la identidad</b> de usuarios y sistemas</td><td>identificación digital, firma electrónica, biometría</td></tr>
+ <tr><td><span class="k">No repudio</span></td><td><b>nadie puede negar</b> haber realizado una acción</td><td>firma electrónica, certificados digitales, acuses de recibo</td></tr>
+ </tbody></table></div>
+ <ul><li>La autenticidad se consigue en ocasiones gracias a <b>terceras partes confiables (TTP, Trusted Third Party)</b>.</li>
+ <li>El no repudio tiene <b>dos tipos</b>: <b>de origen</b> (el emisor no puede negar que lo envió) y <b>de destino</b> (el receptor no puede negar que lo recibió).</li></ul>`},
+ {h:"Amenaza, vulnerabilidad y riesgo", html:`<div class="tw"><table><thead><tr><th>Término</th><th>Definición exacta</th></tr></thead><tbody>
+ <tr><td><span class="k">Amenaza</span></td><td>Algo (o alguien) <b>capaz de causar daño</b>; el agente con capacidad e intención de causar un daño.</td></tr>
+ <tr><td><span class="k">Vulnerabilidad</span></td><td><b>Debilidad</b> de un sistema.</td></tr>
+ <tr><td><span class="k">Riesgo</span></td><td><span class='def'>Probabilidad de que una amenaza aproveche una vulnerabilidad.</span></td></tr>
+ </tbody></table></div>
+ <div class="note tip"><span class="lbl">Caso resuelto en clase · 0-day</span>“Un atacante externo afecta un servidor usando una vulnerabilidad de 0 day”.<br><b>Amenaza:</b> el atacante externo, que tiene capacidad e intención de causar daño. <b>Vulnerabilidad:</b> el fallo 0-day, una debilidad desconocida para la que aún no existe parche en el momento del ataque. <b>Riesgo:</b> la posibilidad de que ese atacante aproveche la vulnerabilidad y consiga acceso no autorizado, robo o modificación de datos, instalación de malware…</div>`},
+ {h:"Tips de este tema", html:`<div class="note trap"><span class="lbl">Trampas típicas</span><ul>
+ <li>No confundas amenaza con vulnerabilidad: la amenaza es <b>externa y activa</b>, la vulnerabilidad es <b>interna y pasiva</b> (una debilidad propia). El riesgo <b>no es un hecho, es una probabilidad</b>.</li>
+ <li>El hash protege la <b>integridad</b>, no la confidencialidad. Cifrar protege la <b>confidencialidad</b>.</li>
+ <li>La firma electrónica cubre <b>autenticidad, integridad y no repudio</b> a la vez; es la respuesta más completa cuando aparece.</li>
+ <li>¿Es posible la seguridad total? <span class='no'>No.</span> Se reduce el riesgo a un nivel aceptable, nunca a cero.</li></ul></div>`}
+]},
+
+{id:"t2", short:"Tipos de seguridad", n:2, title:"Tipos de seguridad", ra:"Políticas · plan de contingencia · auditorías · clasificación", blocks:[
+ {h:"Cómo evitar los riesgos", html:`<ul>
+ <li><b>Personalmente:</b> buenas prácticas y sentido común.</li>
+ <li><b>En la empresa:</b> políticas de seguridad, planes de contingencia y <b>auditorías</b>.</li></ul>`},
+ {h:"Políticas de seguridad", html:`<p>Son <b>normas y protocolos</b> que deben seguir los responsables de la seguridad para proteger los sistemas informáticos <b>a nivel físico y lógico</b>.</p>
+ <h4 class="sub">Medidas preventivas (12 del temario)</h4>
+ <ol class="steps"><li>Localizar <b>todos los activos</b> que hay que proteger.</li>
+ <li>Revisar la configuración de las <b>copias de seguridad</b>.</li>
+ <li>Elaborar <b>planes de actuación ante catástrofes</b> (planes de contingencia).</li>
+ <li>Instalar <b>lo estrictamente necesario</b> e impedir que los usuarios instalen sin permiso.</li>
+ <li>Estar al día sobre seguridad: formación y suscripción a foros, sobre todo de los <b>proveedores de hardware y software</b>, para conocer los agujeros de seguridad.</li>
+ <li>Mantener el <b>sistema operativo y las aplicaciones actualizadas</b>.</li>
+ <li>Dar <b>formación a los usuarios</b>.</li>
+ <li>Revisar los archivos <code>.log</code> del sistema para detectar problemas.</li>
+ <li>Revisar la <b>lista de equipos conectados</b>.</li>
+ <li>Revisar los <b>usuarios activos</b> y eliminar los que ya no están en la empresa.</li>
+ <li>Configurar el <b>aviso por SMS</b> ante fallo eléctrico (algunos SAI lo traen).</li>
+ <li>Realizar <b>auditorías periódicas</b>.</li></ol>
+ <h4 class="sub">Medidas correctivas (tras el desastre)</h4>
+ <ol class="steps"><li>Reparación de equipos dañados y sustitución de piezas.</li>
+ <li>Reinstalación de software.</li>
+ <li>Recuperación de datos mediante <b>copias de seguridad</b>.</li>
+ <li>Bloqueo de cuentas de usuarios negligentes.</li></ol>`},
+ {h:"Plan de contingencia — las 5 etapas", html:`<p>Aunque apliquemos todas las políticas, a veces se producen fallos que llevan al desastre. El plan de contingencia permite <b>recuperarse</b> y corregir problemas.</p>
+ <div class="tw"><table><thead><tr><th>#</th><th>Etapa</th><th>En qué consiste</th></tr></thead><tbody>
+ <tr><td class="num">1</td><td><span class="k">Evaluación</span></td><td>Identificar los <b>activos críticos</b> y analizar el <b>impacto</b> que tendría su deterioro o pérdida.</td></tr>
+ <tr><td class="num">2</td><td><span class="k">Planificación</span></td><td><b>Documentar y validar</b> el plan. Intervienen los miembros que se verían afectados por el desastre.</td></tr>
+ <tr><td class="num">3</td><td><span class="k">Pruebas</span></td><td>Se <b>simula un entorno de prueba</b> para comprobar la <b>viabilidad</b> del plan.</td></tr>
+ <tr><td class="num">4</td><td><span class="k">Ejecución</span></td><td>El plan <b>se pone en marcha</b> para asegurar la continuidad del sistema en caso de fallo.</td></tr>
+ <tr><td class="num">5</td><td><span class="k">Recuperación</span></td><td>Tras el incidente se <b>restablece el sistema</b> para que continúe como si nada hubiese pasado.</td></tr>
+ </tbody></table></div>
+ <div class="note tip"><span class="lbl">Regla para memorizar</span><b>E-P-P-E-R</b> → <b>E</b>valuación · <b>P</b>lanificación · <b>P</b>ruebas · <b>E</b>jecución · <b>R</b>ecuperación. Si te piden elaborar un plan de contingencia, usa estas cinco como apartados y en este orden.</div>`},
+ {h:"Auditorías", html:`<ul>
+ <li>Una auditoría es una <b>evaluación sistemática sobre un objeto</b>. En seguridad informática, sobre las <b>políticas, protocolos, planes de contención y dispositivos</b> que conforman la red de la entidad.</li>
+ <li><b>Interna:</b> la realiza la propia empresa. <b>Externa:</b> se contrata a una empresa de fuera.</li>
+ <li>Por norma general, las <span class='si'>más completas son las externas</span> (más objetividad e independencia).</li>
+ <li>En ocasiones la entidad auditora emite un <b>certificado</b> que demuestra el cumplimiento de los criterios de seguridad.</li></ul>`},
+ {h:"Clasificación de la seguridad", html:`<p>Se clasifica <b>de dos formas a la vez</b>, y en el examen casi siempre te piden las dos.</p>
+ <div class="tw"><table><thead><tr><th colspan="2">Según QUÉ se protege</th></tr></thead><tbody>
+ <tr><td><span class="k">Física</span></td><td>Protege cada <b>dispositivo o el CPD</b>: equipos, servidores, cableado, infraestructuras. Frente a <b>incendios, robos, inundaciones, cortes eléctricos</b>, apagones y meteorología.</td></tr>
+ <tr><td><span class="k">Lógica</span></td><td>Protege el <b>software</b>: datos, aplicaciones, sistemas operativos y comunicaciones. Frente a <b>malware, accesos no autorizados y manipulación de información</b>. Se guía por el modelo CIDAN.</td></tr>
+ </tbody></table></div>
+ <div class="tw"><table><thead><tr><th colspan="2">Según CUÁNDO actúa</th></tr></thead><tbody>
+ <tr><td><span class="k">Activa</span></td><td>Medidas de protección <b>en las interacciones usuario-sistema</b>. Carácter <b>proactivo</b>: previene y detecta <b>antes</b> de que suceda el ataque. Contraseñas, encriptación, firmas y certificados digitales.</td></tr>
+ <tr><td><span class="k">Pasiva</span></td><td>Protege el sistema <b>simplemente por existir</b>. <b>Soluciona o minimiza</b> los efectos de un ataque <b>ya producido</b>. Copias de seguridad, RAID y SAI.</td></tr>
+ </tbody></table></div>
+ <div class="tw"><table><thead><tr><th>Seguridad activa</th><th>Seguridad pasiva</th></tr></thead><tbody>
+ <tr><td>Previene</td><td>Recupera</td></tr><tr><td>Detecta</td><td>Minimiza daños</td></tr>
+ <tr><td>Antivirus</td><td>Backup</td></tr><tr><td>Firewall</td><td>RAID</td></tr><tr><td>ACL</td><td>SAI</td></tr>
+ </tbody></table></div>
+ <div class="note trap"><span class="lbl">Ojo con esto</span>Los dos criterios son <b>independientes</b>: toda medida es (física o lógica) <b>y</b> (activa o pasiva). Un SAI es <b>física + pasiva</b>; un antivirus es <b>lógica + activa</b>; un lector de huella para encender el PC es <b>lógica + activa</b> (controla la interacción usuario-sistema, aunque el lector sea un aparato); generar un SHA-1 es <b>lógica + pasiva</b> (no impide nada, solo permite comprobar después).</div>`}
+]},
+
+{id:"t3", short:"Seguridad pasiva", n:3, title:"Seguridad pasiva: ubicación y protección física", ra:"RA1 · CE c, CE d · riesgos físicos y CPD", blocks:[
+ {h:"De qué se ocupa la seguridad física", html:`<ul>
+ <li>Empieza con el <b>control de acceso</b> a las salas o al edificio.</li>
+ <li>Incluye el <b>mantenimiento</b> de las instalaciones y del hardware.</li>
+ <li>Y es la encargada de la <b>recuperación ante la pérdida de equipo</b> por desastres.</li>
+ <li>Idea clave del tema: <b>ningún plan de contención es infalible</b>.</li></ul>`},
+ {h:"Riesgos a nivel físico (los 6 del temario)", html:`<div class="tw"><table><thead><tr><th>Riesgo</th><th>Ejemplos</th></tr></thead><tbody>
+ <tr><td><span class="k">Obsolescencia de almacenamiento</span></td><td>deterioro de cintas, discos, HD…</td></tr>
+ <tr><td><span class="k">Fenómenos naturales</span></td><td>riadas, terremotos, incendios, tormentas eléctricas</td></tr>
+ <tr><td><span class="k">Problemas eléctricos</span></td><td>subidas y picos de tensión, apagones</td></tr>
+ <tr><td><span class="k">Problemas electromagnéticos</span></td><td>imanes, altavoces, destornilladores imantados</td></tr>
+ <tr><td><span class="k">Riesgos humanos involuntarios</span></td><td>café derramado, puertas abiertas</td></tr>
+ <tr><td><span class="k">Riesgos humanos deliberados</span></td><td>sabotajes, vandalismo, robos</td></tr>
+ </tbody></table></div>`},
+ {h:"Instalaciones que hay que proteger y mantener", html:`<ul>
+ <li><b>Instalación eléctrica:</b> enchufes con <b>toma a tierra</b>.</li>
+ <li><b>Instalaciones de red:</b> dispositivos como <b>routers y switches cerrados con llave</b> para controlar el acceso.</li>
+ <li><b>Instalación contra incendios:</b> <b>detectores de humo o calor</b> y aspersores con <b>nebulización de agua, gases inertes o CO₂</b>.</li></ul>`},
+ {h:"El CPD (Centro de Procesamiento de Datos)", html:`<p>Centraliza <b>servidores y equipos críticos</b>.</p>
+ <h4 class="sub">Ventajas de centralizar</h4>
+ <ul><li><b>Ahorro en vigilancia y refrigeración</b>: un solo punto que proteger.</li>
+ <li><b>Mejores comunicaciones</b> entre servidores.</li>
+ <li><b>Recursos humanos</b> del departamento IT más eficientes.</li></ul>
+ <h4 class="sub">Estructura y condiciones</h4>
+ <ul><li>Varios servidores con <b>hardware potente apilados en racks</b>, unidos por cableado y elementos de interconexión.</li>
+ <li>Funciona <b>24 horas al día</b>.</li>
+ <li>Se ubica en <b>edificios o salas independientes, lejos de los puestos de usuario</b>: hacen <b>mucho ruido</b> y <b>desprenden mucho calor</b>.</li>
+ <li><b>Temperatura interior: 17-19 °C</b> → hace falta un sistema de refrigeración muy potente.</li>
+ <li>Debe tener un <b>sistema anexo de copias de seguridad</b>.</li>
+ <li>Elementos del diagrama: <b>grupo electrógeno, servidores, refrigeración, backups, SAIs y sala de control</b>.</li></ul>`},
+ {h:"Centros de respaldo", html:`<p>Son <b>réplicas casi exactas del CPD</b> para recuperar rápidamente el sistema ante un desastre. Suelen estar <b>alejados del CPD original</b> y se usan sobre todo cuando la empresa <b>no puede permitirse tener los servidores inactivos</b>.</p>
+ <ul><li><b>Réplicas exactas</b> del CPD.</li><li><b>Réplicas parciales</b> del CPD original.</li>
+ <li><b>Acuerdo mutuo</b>: dos empresas se respaldan la una a la otra.</li></ul>`},
+ {h:"Medidas según la ubicación", html:`<div class="tw"><table><thead><tr><th>Salas dentro de la empresa</th><th>Edificios aislados</th></tr></thead><tbody>
+ <tr><td>Sala <b>reforzada arquitectónicamente</b> (soporta mucho peso)</td><td>Zonas con <b>poco riesgo</b> de terremotos, inundaciones e incendios</td></tr>
+ <tr><td>Preferentemente en <b>plantas bajas</b></td><td><b>Lejos de otros edificios</b></td></tr>
+ <tr><td><span class='no'>Evitar los sótanos</span> a ser posible</td><td>En <b>zonas frías</b>, para reducir el consumo energético</td></tr>
+ <tr><td><b>Sin material inflamable</b> en salas alrededor</td><td>Estructura <b>ignífuga</b> y control de acceso <b>más riguroso</b></td></tr>
+ </tbody></table></div>
+ <div class="note trap"><span class="lbl">Pregunta de reflexión que puede caer</span>“¿Las empresas eligen la ubicación más segura o la más rentable?” → En la práctica pesa mucho el <b>coste</b> (terreno barato, electricidad barata, clima frío que abarata la refrigeración) y por eso a veces se asumen riesgos; lo correcto es un <b>equilibrio</b> justificado con un análisis de riesgos.</div>`}
+]},
+{id:"t4", short:"ACL", n:4, title:"Listas de control de acceso (ACL)", ra:"RA1 · CE g · ¿quién puede hacer qué, sobre qué?", blocks:[
+ {h:"Control de acceso y las 3 fases (IAA)", html:`<p>El control de acceso es el conjunto de mecanismos que <span class='def'>permiten o deniegan</span> a un <b>sujeto</b> realizar una <b>operación</b> sobre un <b>objeto</b>.</p>
+ <ol class="steps"><li><b>Identificación</b> — ¿quién dices ser? (usuario)</li>
+ <li><b>Autenticación</b> — demuéstralo (contraseña, tarjeta, huella)</li>
+ <li><b>Autorización</b> — ¿qué puedes hacer? <b>Aquí actúan las ACL</b></li></ol>
+ <ul><li><b>Sujeto:</b> usuario, grupo, proceso, equipo.</li>
+ <li><b>Objeto:</b> fichero, carpeta, impresora, puerto, sala.</li>
+ <li><b>Operación / permiso:</b> leer, escribir, ejecutar, borrar, entrar…</li></ul>`},
+ {h:"Matriz de control de acceso", html:`<p>Es la forma <b>más completa</b> de representar quién puede hacer qué. En una empresa real es <b>enorme y casi vacía</b> (miles de sujetos × miles de objetos, la mayoría de celdas en “—”), así que <span class='no'>no se guarda entera</span>, sino <b>por columnas</b> (ACL) o <b>por filas</b> (capacidades).</p>
+ <div class="tw"><table><thead><tr><th>Sujeto \\ Objeto</th><th>nominas.xlsx</th><th>clientes.db</th><th>Impresora 1</th><th>Sala CPD</th></tr></thead><tbody>
+ <tr><td>Ana (RR. HH.)</td><td>Leer, Escribir</td><td>—</td><td>Imprimir</td><td>—</td></tr>
+ <tr><td>Luis (Comercial)</td><td>—</td><td>Leer, Escribir</td><td>Imprimir</td><td>—</td></tr>
+ <tr><td>Marta (Técnica)</td><td>—</td><td>Leer</td><td>Imprimir</td><td>Entrar</td></tr>
+ <tr><td>Becario</td><td>—</td><td>Leer</td><td>—</td><td>—</td></tr>
+ </tbody></table></div>`},
+ {h:"ACL frente a listas de capacidades", html:`<div class="tw"><table><thead><tr><th></th><th>ACL (por columnas)</th><th>Capacidades (por filas)</th></tr></thead><tbody>
+ <tr><td>Qué guarda</td><td>Cada <b>objeto</b> guarda la lista de quién puede hacer qué con él</td><td>Cada <b>sujeto</b> guarda lo que puede hacer</td></tr>
+ <tr><td>Ventaja</td><td>Fácil saber <b>quién accede a un recurso</b> y fácil <b>revocar</b> el acceso a ese recurso</td><td>Fácil saber <b>todo lo que puede hacer un usuario</b></td></tr>
+ <tr><td>Inconveniente</td><td>Difícil saber todo lo que puede hacer un usuario</td><td>Difícil revocar un recurso <b>a todos</b></td></tr>
+ </tbody></table></div>
+ <p>Cada línea de una ACL es una <b>ACE</b> (<i>Access Control Entry</i>): <b>sujeto + permiso + permitir o denegar</b>.</p>
+ <pre>nominas.xlsx            Ana
+├── Ana → Leer, Escribir   ├── nominas.xlsx → Leer, Escribir
+└── Grupo RRHH → Leer      └── Impresora 1 → Imprimir
+   (ACL: por objeto)          (capacidades: por sujeto)</pre>`},
+ {h:"Los 6 principios de cualquier ACL", html:`<div class="tw"><table><thead><tr><th>Principio</th><th>Qué significa</th></tr></thead><tbody>
+ <tr><td><span class="k">Mínimo privilegio</span></td><td>Cada sujeto tiene <b>solo los permisos imprescindibles</b> para su trabajo</td></tr>
+ <tr><td><span class="k">Necesidad de saber</span></td><td>Solo se accede a la información <b>que hace falta para la tarea</b></td></tr>
+ <tr><td><span class="k">Denegar por defecto</span></td><td>Lo que no está <b>permitido explícitamente</b> está prohibido</td></tr>
+ <tr><td><span class="k">Segregación de funciones</span></td><td>Una tarea crítica no depende de una sola persona: <b>quien pide no aprueba</b></td></tr>
+ <tr><td><span class="k">Permisos a grupos, no a personas</span></td><td>Se asignan a <b>roles o grupos</b>; las personas entran y salen de ellos</td></tr>
+ <tr><td><span class="k">Trazabilidad</span></td><td>Cuentas <b>personales e intransferibles</b> y accesos <b>registrados</b></td></tr>
+ </tbody></table></div>`},
+ {h:"Modelos de control de acceso", html:`<div class="tw"><table><thead><tr><th></th><th>DAC</th><th>MAC</th><th>RBAC</th><th>ABAC</th></tr></thead><tbody>
+ <tr><td>Nombre</td><td>Discrecional</td><td>Obligatorio</td><td>Basado en roles</td><td>Basado en atributos</td></tr>
+ <tr><td><b>¿Quién decide?</b></td><td><b>Propietario</b> del recurso</td><td><b>Sistema</b>, según etiquetas</td><td><b>Administrador</b> (roles)</td><td><b>Reglas</b> sobre atributos</td></tr>
+ <tr><td>Flexibilidad</td><td>Alta</td><td>Muy baja</td><td>Media</td><td>Muy alta</td></tr>
+ <tr><td>Seguridad</td><td>Baja o media</td><td>Muy alta</td><td>Alta</td><td>Alta</td></tr>
+ <tr><td>Administración</td><td>Sencilla, caótica a gran escala</td><td>Costosa</td><td>Sencilla</td><td>Compleja</td></tr>
+ <tr><td>Uso típico</td><td>Ficheros personales, nube, Windows y Linux</td><td>Defensa, gobierno, <b>SELinux</b></td><td>Empresas, <b>ERP, Active Directory</b></td><td>Nube, accesos con condiciones</td></tr>
+ </tbody></table></div>
+ <ul><li><b>MAC:</b> decide por <b>nivel de clasificación</b> del recurso y <b>habilitación</b> del usuario. <b>Ni el propietario puede saltárselo.</b></li>
+ <li><b>RBAC:</b> los permisos se asignan a roles y los usuarios tienen roles. Altas, bajas y cambios de puesto muy sencillos; hay que evitar la <b>“explosión de roles”</b>.</li>
+ <li><b>ABAC:</b> atributos del usuario, del recurso y del <b>contexto</b> (hora, ubicación, dispositivo). Ejemplo: “enfermería puede ver historiales <b>de su planta</b>, en <b>su turno</b>, desde un <b>equipo del hospital</b>”.</li>
+ <li>En la práctica se <b>combinan</b>: RBAC como base + condiciones ABAC para casos concretos (turnos, teletrabajo).</li></ul>`},
+ {h:"ACL en Linux: permisos clásicos", html:`<pre>$ ls -l informe.odt
+-rw-r----- 1 ana contabilidad 24576 sep 28 10:12 informe.odt
+ │└┬┘└┬┘└┬┘   └┬┘ └────┬─────┘
+ │ │  │  │     │       └── grupo propietario
+ │ │  │  │     └────────── usuario propietario
+ │ │  │  └── otros: --- (nada)
+ │ │  └───── grupo: r-- (leer)
+ │ └──────── usuario: rw- (leer y escribir)
+ └────────── tipo: - fichero, d directorio</pre>
+ <div class="tw"><table><thead><tr><th>Permiso</th><th>Símbolo</th><th>Sobre archivos</th><th>Sobre directorios</th></tr></thead><tbody>
+ <tr><td>Lectura</td><td class="mono">r</td><td>Ver el contenido</td><td>Ver <b>qué archivos contiene</b></td></tr>
+ <tr><td>Escritura</td><td class="mono">w</td><td>Modificar el contenido</td><td><b>Crear, eliminar o renombrar</b> archivos</td></tr>
+ <tr><td>Ejecución</td><td class="mono">x</td><td>Ejecutar el archivo como programa</td><td><b>Acceder / entrar</b> al directorio</td></tr>
+ </tbody></table></div>
+ <p>Si Pedro no está en el grupo <i>contabilidad</i>, <span class='no'>no puede</span> leerlo sin cambiarlo de grupo o abrirlo a todos → la solución son las <b>ACL POSIX</b>.</p>`},
+ {h:"ACL POSIX y la máscara", html:`<pre>setfacl -m u:pedro:r informe.odt      # añade a Pedro con lectura
+setfacl -m g:auditoria:r informe.odt  # añade un grupo más
+setfacl -x u:pedro informe.odt        # quita a Pedro
+getfacl informe.odt                   # muestra la ACL</pre>
+ <pre># file: informe.odt
+# owner: ana
+# group: contabilidad
+user::rw-
+user:pedro:r--
+group::r--
+group:auditoria:r--
+mask::r--          ← límite máximo de usuarios y grupos añadidos
+other::---</pre>
+ <div class="note form"><span class="lbl">La máscara: la clave de los ejercicios</span>La <b>máscara recorta los permisos efectivos</b> de todo lo que no sea el <b>propietario</b> (<code>user::</code>) ni <b>“otros”</b> (<code>other::</code>).<span class="eq">permiso efectivo = permiso asignado AND máscara</span>El propietario y “otros” <b>se saltan la máscara</b>. Todos los demás (usuarios nombrados, grupo propietario y grupos nombrados) quedan limitados por ella.</div>`},
+ {h:"ACL en Windows: permisos NTFS", html:`<ul>
+ <li>Cada fichero y carpeta tiene una ACL con entradas <span class='si'>Permitir</span> o <b>Denegar</b> para usuarios y grupos.</li>
+ <li>Permisos básicos: <b>Control total · Modificar · Leer y ejecutar · Mostrar contenido · Leer · Escribir</b>.</li>
+ <li><b>Herencia:</b> las carpetas pasan sus permisos a lo que contienen.</li></ul>
+ <div class="note form"><span class="lbl">Orden de evaluación (de más a menos prioridad)</span>
+ <ol class="steps" style="margin:6px 0 0"><li><b>Denegar explícito</b></li><li><b>Permitir explícito</b></li><li><b>Denegar heredado</b></li><li><b>Permitir heredado</b></li></ol>
+ <p style="margin:10px 0 0"><b>Carpeta compartida por red:</b> se combinan los permisos de <b>recurso compartido</b> y los <b>NTFS</b>, y <b>gana el más restrictivo</b>. Si entras <b>sentado en el propio servidor</b> (acceso local), el permiso de recurso compartido <span class='no'>no se aplica</span>: solo cuentan los NTFS.</p></div>`},
+ {h:"ACL de red: filtrar tráfico", html:`<pre>10  permit tcp 192.168.10.0/24  any                      eq 443
+20  deny  tcp any                host 192.168.20.5 eq 22
+30  permit tcp host 192.168.10.50 host 192.168.20.5 eq 22
+40  permit icmp any any
+XX  implicit deny any</pre>
+ <ul><li><span class='n'>10 —</span> permite TCP desde cualquier equipo de esa red hacia cualquier destino en el <b>puerto 443 (HTTPS)</b>.</li>
+ <li><span class='n'>20 —</span> bloquea cualquier conexión TCP dirigida a 192.168.20.5 en el <b>puerto 22 (SSH)</b>.</li>
+ <li><span class='n'>30 —</span> permite que 192.168.10.50 se conecte por TCP al puerto 22 de 192.168.20.5.</li>
+ <li><span class='n'>40 —</span> permite <b>ICMP</b> de cualquier origen a cualquier destino (es decir, permite <b>pings</b>).</li></ul>
+ <div class="note form"><span class="lbl">Las 4 reglas de oro</span>
+ <ol class="steps" style="margin:6px 0 0"><li>Se evalúan <b>en orden, de arriba abajo</b>.</li>
+ <li>Se aplica la <b>primera regla que coincide</b> y <b>se deja de mirar</b>.</li>
+ <li>Al final siempre hay un <b>denegar todo implícito</b>.</li>
+ <li>Las reglas <b>más específicas van antes</b> que las generales.</li></ol></div>
+ <div class="note trap"><span class="lbl">El fallo del ejemplo (cae seguro)</span>El administrador <b>192.168.10.50 no puede entrar por SSH</b> aunque la regla 30 se lo permita: la regla <b>20 deniega antes</b> y, al coincidir primero, ya no se sigue leyendo. <b>Solución:</b> poner la regla 30 (la más específica) <b>antes</b> de la 20 — por ejemplo renumerándola como 15.</div>`},
+ {h:"Las ACL también son físicas", html:`<div class="tw"><table><thead><tr><th>Zona</th><th>Quién</th><th>Cuándo</th><th>Cómo</th></tr></thead><tbody>
+ <tr><td>Entrada principal</td><td>Todo el personal</td><td>7:00 – 21:00</td><td>Tarjeta</td></tr>
+ <tr><td>Oficinas</td><td>Personal de la planta</td><td>Horario laboral</td><td>Tarjeta</td></tr>
+ <tr><td>CPD</td><td>Técnicos de sistemas</td><td>24/7</td><td><b>Tarjeta + huella</b></td></tr>
+ <tr><td>CPD (externos)</td><td>Mantenimiento</td><td>Con cita</td><td>Acompañado y registrado</td></tr>
+ </tbody></table></div>
+ <p>Los sistemas de control de accesos físicos guardan <b>una ACL por puerta</b> (quién, qué zona, qué horario) y un <b>registro de entradas</b>.</p>`},
+ {h:"Política de seguridad basada en ACL (los 10 puntos)", html:`<p>Una política <b>no son solo los permisos</b>: es el documento que dice <b>cómo se deciden, se aplican y se revisan</b>.</p>
+ <ol class="steps"><li><b>Objetivo y alcance</b>: qué sistemas, qué personas.</li>
+ <li><b>Inventario y clasificación de recursos</b>: pública, interna, confidencial, especialmente protegida.</li>
+ <li><b>Roles y grupos</b> de usuarios.</li>
+ <li><b>Matriz de control de acceso</b>: rol × recurso.</li>
+ <li><b>Principios</b>: mínimo privilegio, denegar por defecto, segregación…</li>
+ <li><b>Procedimientos</b>: alta, cambio de puesto, baja, externos y temporales.</li>
+ <li><b>Revisión periódica</b> de permisos: ¿cada cuánto? ¿quién?</li>
+ <li><b>Registro y auditoría</b> de accesos.</li>
+ <li><b>Excepciones y emergencias</b>.</li>
+ <li><b>Responsables</b> de aprobar y de mantener la política.</li></ol>`},
+ {h:"Ciclo de vida del acceso y errores típicos", html:`<p><b>Solicitud → Aprobación</b> (responsable del recurso) <b>→ Asignación</b> (se añade al grupo o rol) <b>→ Uso + registro → Revisión periódica →</b> cambio de puesto (vuelve a solicitud) o <b>revocación</b> en la baja, <b>el mismo día</b>.</p>
+ <div class="note trap"><span class="lbl">Errores típicos (y el principio que incumplen)</span><ul>
+ <li>Permisos a <b>Todos / Everyone</b> “para que funcione” → mínimo privilegio y denegar por defecto.</li>
+ <li><b>Cuentas compartidas</b> (la cuenta <code>admin</code> común) → no hay <span class='si'>trazabilidad</span>.</li>
+ <li><b>Acumulación de privilegios</b>: cambia de puesto y conserva los permisos antiguos → mínimo privilegio.</li>
+ <li><b>Bajas que no se revocan</b>: cuentas “zombi” → revocación el mismo día.</li>
+ <li>Permisos <b>directos a cada usuario</b> según lo pida → permisos a grupos, no a personas.</li>
+ <li>Revisar permisos <b>solo cuando hay un incidente</b> → revisión periódica.</li>
+ <li>“Todo lo que no esté prohibido está permitido” → <b>denegar por defecto</b>.</li>
+ <li>Quien <b>da de alta proveedores aprueba sus pagos</b> → segregación de funciones.</li></ul></div>`}
+]},
+
+{id:"t5", short:"Contraseñas", n:5, title:"Política de contraseñas", ra:"RA1 · CE h · la llave que abre todas las puertas", blocks:[
+ {h:"Por qué hace falta una política", html:`<ul>
+ <li>La contraseña sigue siendo el <b>mecanismo de autenticación más usado</b> en empresas.</li>
+ <li>Las <b>credenciales robadas o débiles</b> son una de las principales vías de entrada en los incidentes (informes <b>Verizon DBIR</b> e <b>INCIBE-CERT</b>).</li>
+ <li>Las personas <b>reutilizan contraseñas</b>: una filtración en una web cualquiera abre el correo, el banco o el servidor de la empresa.</li>
+ <li>Consecuencias: robo de datos (con obligación de <b>notificar a la AEPD</b>), <i>ransomware</i>, fraude, suplantación y daño a la imagen.</li>
+ <li><b>Sin política</b> cada persona hace lo que quiere; <b>con política</b> la empresa fija <b>mínimos obligatorios</b>, los <b>implanta técnicamente</b> y <b>forma</b> al personal.</li></ul>`},
+ {h:"Cómo se rompen: adivinarlas", html:`<div class="tw"><table><thead><tr><th>Ataque</th><th>En qué consiste</th><th>Defensa principal</th></tr></thead><tbody>
+ <tr><td><span class="k">Fuerza bruta</span></td><td>Probar <b>todas</b> las combinaciones posibles</td><td><span class='si'>Longitud</span></td></tr>
+ <tr><td><span class="k">Diccionario</span></td><td>Probar palabras y contraseñas conocidas</td><td>Lista negra; no usar palabras ni contraseñas comunes</td></tr>
+ <tr><td><span class="k">Reglas o híbrido</span></td><td>Diccionario + variaciones (<code>a→@</code>, <code>+2026</code>, <code>+!</code>)</td><td>No seguir patrones previsibles</td></tr>
+ <tr><td><span class="k">Credential stuffing</span></td><td>Usar usuario y contraseña <b>filtrados de otra web</b></td><td>No reutilizar · MFA</td></tr>
+ <tr><td><span class="k">Password spraying</span></td><td><b>Pocas</b> contraseñas comunes en <b>muchas</b> cuentas</td><td>Lista negra · detección</td></tr>
+ <tr><td><span class="k">Tablas rainbow</span></td><td>Tablas <b>precalculadas</b> de hash → contraseña</td><td><b>Sal</b> en el almacenamiento</td></tr>
+ </tbody></table></div>
+ <p><b>Online</b> (contra el login): limitado por los bloqueos. <b>Offline</b> (con los hashes robados): <b>miles de millones de intentos por segundo</b>.</p>`},
+ {h:"Cómo se roban: sin adivinarlas", html:`<ul>
+ <li><b>Phishing:</b> una web o correo falso te la pide.</li>
+ <li><b>Keylogger</b> o malware que captura el teclado.</li>
+ <li><b>Shoulder surfing:</b> mirar por encima del hombro.</li>
+ <li><b>Ingeniería social:</b> “soy de informática, dame tu contraseña para revisar tu cuenta”.</li>
+ <li><b>Mala custodia:</b> pósit en el monitor, <code>contraseñas.xlsx</code>, contraseña enviada por WhatsApp.</li>
+ <li><b>Contraseñas por defecto:</b> routers, cámaras, impresoras o TPV con <code>admin/admin</code>.</li></ul>
+ <p>Una contraseña de 30 caracteres <span class='no'>no protege</span> si se la entregas al atacante: por eso hacen falta <b>MFA y formación</b>.</p>`},
+ {h:"Entropía: medir la fuerza", html:`<div class="note form"><span class="lbl">Fórmula de entropía</span><span class="eq">bits = L × log₂(N)</span>
+ <b>L</b> = longitud · <b>N</b> = tamaño del alfabeto. <b>Cada bit duplica</b> los intentos necesarios.<br>
+ Tiempo para probarlas todas (offline): <span class="eq">t = N^L ÷ (intentos por segundo)</span></div>
+ <div class="tw"><table><thead><tr><th>Alfabeto</th><th>N</th><th>bits por carácter</th></tr></thead><tbody>
+ <tr><td>Solo dígitos</td><td class="num">10</td><td class="num">3,3</td></tr>
+ <tr><td>Minúsculas</td><td class="num">26</td><td class="num">4,7</td></tr>
+ <tr><td>Mayúsculas + minúsculas + dígitos</td><td class="num">62</td><td class="num">5,95</td></tr>
+ <tr><td>Todos los imprimibles</td><td class="num">94</td><td class="num">6,55</td></tr>
+ <tr><td>Palabra de una lista de 7.776 (<i>diceware</i>)</td><td class="num">7.776</td><td class="num">12,9 por palabra</td></tr>
+ </tbody></table></div>
+ <p>Atacante <b>offline</b> con una GPU actual (RTX 5090): <b>10.000 millones de intentos por segundo (10¹⁰)</b> contra un hash MD5.</p>
+ <div class="tw"><table><thead><tr><th>Contraseña aleatoria</th><th>Bits</th><th>Tiempo para probarlas todas</th></tr></thead><tbody>
+ <tr><td>4 dígitos (PIN)</td><td class="num">13,3</td><td>instantáneo (1 microsegundo)</td></tr>
+ <tr><td>6 minúsculas</td><td class="num">28,2</td><td>0,03 s</td></tr>
+ <tr><td>8 caracteres: mayús. + minús. + dígitos</td><td class="num">47,6</td><td>unas <span class='n'>6 horas</span></td></tr>
+ <tr><td>8 caracteres de los 94 imprimibles</td><td class="num">52,4</td><td>unos <span class='n'>7 días</span></td></tr>
+ <tr><td>12 minúsculas</td><td class="num">56,4</td><td>unos <span class='n'>110 días</span></td></tr>
+ <tr><td>6 palabras diceware</td><td class="num">77,5</td><td>unos <span class='n'>700.000 años</span></td></tr>
+ </tbody></table></div>
+ <div class="note trap"><span class="lbl">La conclusión del tema</span><b>Manda la longitud, no la complejidad.</b> Añadir <b>un carácter</b> suma 4,7-6,5 bits; añadir “un símbolo obligatorio” casi no suma nada, porque la gente lo pone <b>siempre al final</b>. Y la entropía <b>solo vale para contraseñas generadas al azar</b>: una “inventada” por una persona es mucho más débil de lo que dice la fórmula.</div>`},
+ {h:"Cómo se guardan: hash y sal", html:`<ul>
+ <li><span class='no'>Nunca en texto plano.</span> Se guarda un <b>hash</b>: función <b>de un solo sentido</b>. <code>123456 → MD5 → e10adc3949ba59abbe56e057f20f883e</code></li>
+ <li><b>No válidos</b> (demasiado rápidos): <b>MD5, SHA-1, SHA-256 a secas</b>.</li>
+ <li><b>Correctos</b> (lentos y diseñados para contraseñas): <span class='si'>Argon2id, bcrypt, scrypt, yescrypt, PBKDF2</span>.</li>
+ <li><b>Sal (<i>salt</i>):</b> valor <b>aleatorio distinto para cada usuario</b> que se mezcla con la contraseña.</li></ul>
+ <div class="tw"><table><thead><tr><th>Usuario</th><th>Contraseña</th><th>Sin sal</th><th>Con sal</th></tr></thead><tbody>
+ <tr><td>ana</td><td>123456</td><td class="mono">e10a…883e</td><td class="mono">$6$Qx7…$Kp2…</td></tr>
+ <tr><td>luis</td><td>123456</td><td class="mono">e10a…883e</td><td class="mono">$6$aB9…$Zr8…</td></tr>
+ </tbody></table></div>
+ <div class="note tip"><span class="lbl">Qué evita la sal</span>Dos contraseñas iguales dan <b>hashes distintos</b>, así que las <b>tablas rainbow dejan de servir</b> y no se ve a simple vista qué usuarios comparten contraseña. Esta es la pregunta corta más repetible del tema.</div>`},
+ {h:"Recomendaciones NIST SP 800-63B-4 (agosto 2025)", html:`<div class="tw"><table><thead><tr><th>Antes (“lo de toda la vida”)</th><th>Ahora</th></tr></thead><tbody>
+ <tr><td>Mínimo 8 caracteres</td><td><b>15 mínimo</b> si la contraseña es el <b>único factor</b> · <span class='n'>8</span> si hay <span class='si'>MFA</span></td></tr>
+ <tr><td>Longitud máxima corta</td><td>Permitir al menos <span class='n'>64 caracteres</span>, incluidos <b>espacios</b></td></tr>
+ <tr><td>Obligar a mayúsculas, números y símbolos</td><td><span class='no'>No imponer reglas de composición</span></td></tr>
+ <tr><td>Cambio obligatorio cada 30, 60 o 90 días</td><td><span class='no'>No obligar a cambios periódicos</span>: solo si hay <b>indicios de compromiso</b></td></tr>
+ <tr><td>Pistas y preguntas de seguridad</td><td><span class='no'>Prohibidas</span></td></tr>
+ <tr><td>Prohibido pegar</td><td><span class='si'>Permitir</span> gestores de contraseñas y pegar</td></tr>
+ <tr><td>—</td><td>Comprobar contra una <b>lista negra</b>: filtradas, comunes, nombre del servicio</td></tr>
+ <tr><td>—</td><td><b>Limitar los intentos fallidos</b> · guardar con <span class='si'>hash lento + sal</span></td></tr>
+ </tbody></table></div>
+ <p><b>Por qué:</b> las reglas de composición y los cambios frecuentes llevan a <b>patrones previsibles</b> (<code>Verano2026! → Otoño2026!</code>) y a apuntar las contraseñas en pósits.</p>`},
+ {h:"Más allá de la contraseña", html:`<ul>
+ <li><span class='si'>MFA</span> = combinar factores <b>de tipos distintos</b>: algo que <b>sabes</b> (contraseña, PIN), algo que <b>tienes</b> (móvil, llave USB FIDO2, tarjeta), algo que <b>eres</b> (huella, cara).</li>
+ <li>Del más débil al más fuerte: <b>SMS &lt; app con código (TOTP) &lt; notificación con número &lt; llave FIDO2 o passkey</b>.</li>
+ <li><b>Gestores</b> (Bitwarden, KeePassXC): una contraseña <b>única y larga por servicio</b>; solo hay que recordar la <b>maestra</b>, que debe ser una <b>frase larga + MFA</b>. Hay versiones corporativas para compartir credenciales de forma controlada.</li>
+ <li><b>Passkeys:</b> sustituyen la contraseña por un <b>par de claves criptográficas</b> guardadas en el dispositivo. <span class='si'>Resistentes al phishing</span>.</li></ul>`},
+ {h:"Qué incluye una política de contraseñas (los 10 puntos)", html:`<ol class="steps">
+ <li><b>Objetivo, alcance y responsables.</b></li>
+ <li><b>Requisitos de creación:</b> longitud mínima, lista negra, sin datos personales, sin reutilizar.</li>
+ <li><b>Requisitos por tipo de cuenta:</b> usuario, <b>administrador</b>, <b>servicio</b>, <b>dispositivo</b>, externo.</li>
+ <li><b>MFA:</b> dónde es obligatorio (acceso remoto, correo, cuentas privilegiadas).</li>
+ <li><b>Uso y custodia:</b> personal e intransferible, gestor autorizado, nada de pósits ni mensajería.</li>
+ <li><b>Limitación de intentos y bloqueo.</b></li>
+ <li><b>Cambio:</b> al instalar (contraseñas de fábrica) y ante sospecha de compromiso.</li>
+ <li><b>Recuperación y restablecimiento</b> seguros, con verificación de identidad.</li>
+ <li><b>Almacenamiento técnico:</b> hash lento + sal, cifrado en tránsito.</li>
+ <li><b>Formación, incumplimiento</b> y <b>revisión</b> de la política.</li></ol>`}
+]},
+{id:"t6", short:"SAI", n:6, title:"Sistemas de alimentación ininterrumpida (SAI)", ra:"RA1 · CE e, CE f · energía estable para equipos críticos", blocks:[
+ {h:"Perturbaciones de la red eléctrica", html:`<div class="tw"><table><thead><tr><th>Perturbación</th><th>Qué es</th><th>Efecto en los equipos</th></tr></thead><tbody>
+ <tr><td><span class="k">Corte</span></td><td>Falta <b>total</b> de tensión durante segundos u horas</td><td>Apagado brusco, pérdida de datos</td></tr>
+ <tr><td><span class="k">Microcorte</span></td><td>Interrupción de <b>milisegundos</b></td><td>Reinicios inesperados</td></tr>
+ <tr><td><span class="k">Subtensión</span></td><td>Tensión <b>por debajo</b> de lo normal (p. ej. 190 V)</td><td>Fallos y bloqueos, desgaste de las fuentes</td></tr>
+ <tr><td><span class="k">Sobretensión sostenida</span></td><td>Tensión <b>por encima</b> de lo normal durante tiempo</td><td>Sobrecalentamiento, averías</td></tr>
+ <tr><td><span class="k">Pico o transitorio</span></td><td>Subida <b>muy breve y muy alta</b> (rayos, maniobras en la red)</td><td>Fuentes y placas dañadas</td></tr>
+ <tr><td><span class="k">Ruido eléctrico</span></td><td>Interferencias de <b>motores y maquinaria</b></td><td>Errores y comportamiento inestable</td></tr>
+ <tr><td><span class="k">Variación de frecuencia</span></td><td>La red o un <b>generador</b> no mantiene 50 Hz</td><td>Problemas en equipos sensibles</td></tr>
+ </tbody></table></div>
+ <p>En España la red doméstica es de <span class='n'>230 V y 50 Hz</span>.</p>`},
+ {h:"Qué es un SAI y sus componentes", html:`<p>Equipo con <b>baterías</b> y <b>electrónica de potencia</b> entre la red y los equipos. Sus <b>3 funciones</b>:</p>
+ <ol class="steps"><li><b>Mantener la alimentación</b> durante un corte, un tiempo limitado (<b>autonomía</b>).</li>
+ <li><b>Filtrar y estabilizar</b> la tensión: picos, subidas, bajadas y ruido.</li>
+ <li><b>Avisar</b> y permitir un <b>apagado ordenado</b> de los equipos.</li></ol>
+ <div class="tw"><table><thead><tr><th>Componente</th><th>Función</th></tr></thead><tbody>
+ <tr><td><span class="k">Rectificador o cargador</span></td><td>Carga las baterías</td></tr>
+ <tr><td><span class="k">Baterías</span></td><td>Plomo-ácido selladas (<b>VRLA</b>) o de <b>litio</b></td></tr>
+ <tr><td><span class="k">Inversor</span></td><td>Convierte la <b>corriente continua</b> de la batería en <b>alterna</b> (230 V)</td></tr>
+ <tr><td><span class="k">Bypass</span></td><td>Alimenta <b>directamente desde la red</b> si el SAI falla o está en mantenimiento</td></tr>
+ <tr><td><span class="k">Comunicación</span></td><td>USB, serie o <b>tarjeta de red (SNMP)</b></td></tr>
+ </tbody></table></div>
+ <div class="note trap"><span class="lbl">Frase clave</span>Un SAI <span class='no'>no es un generador</span>: su objetivo es <b>ganar minutos, no horas</b>.</div>`},
+ {h:"Tipos de SAI (norma IEC 62040-3)", html:`<div class="tw"><table><thead><tr><th></th><th>Off-line (standby) · <b>VFD</b></th><th>Interactivo (line-interactive) · <b>VI</b></th><th>On-line doble conversión · <b>VFI</b></th></tr></thead><tbody>
+ <tr><td>Funcionamiento</td><td>Los equipos van a la red; si falla, <b>conmuta a batería</b></td><td>Como el off-line, pero <b>regula la tensión (AVR)</b> sin gastar batería</td><td>Los equipos van <b>siempre por el inversor</b></td></tr>
+ <tr><td>Tiempo de conmutación</td><td>≈ <span class='n'>2-10 ms</span></td><td>≈ <span class='n'>2-4 ms</span></td><td><span class='si'>Cero</span></td></tr>
+ <tr><td>Protege frente a</td><td>Cortes y picos</td><td>+ <b>subidas y bajadas</b> de tensión</td><td><b>Todo</b>, incluida la <b>frecuencia</b></td></tr>
+ <tr><td>Forma de onda en batería</td><td>Escalonada o pseudosenoidal</td><td>Pseudosenoidal o senoidal pura</td><td><span class='si'>Senoidal pura</span></td></tr>
+ <tr><td>Precio</td><td>Bajo</td><td>Medio</td><td>Alto</td></tr>
+ <tr><td>Uso típico</td><td>PC de oficina, router doméstico</td><td>Pequeñas oficinas, servidores</td><td><b>CPD, equipos críticos 24/7</b></td></tr>
+ </tbody></table></div>
+ <div class="note tip"><span class="lbl">Dato que decide varios casos prácticos</span>Las fuentes con <b>PFC activo</b>, habituales en <b>servidores</b>, pueden funcionar mal con <b>onda escalonada</b>: para ellas hace falta <span class='si'>onda senoidal pura</span> → interactivo con senoidal pura u <b>on-line</b>. Y si hay <b>generador diésel</b> o problemas de <b>frecuencia</b>, la respuesta es <b>on-line (VFI)</b>, el único que corrige la frecuencia.</div>`},
+ {h:"Potencia: VA y W", html:`<div class="note form"><span class="lbl">Factor de potencia</span><span class="eq">W = VA × FP</span>
+ <b>VA (voltamperios):</b> potencia <b>aparente</b> = tensión × intensidad. <b>W (vatios):</b> potencia <b>real</b> que consumen los equipos. En los SAI actuales el <b>FP suele estar entre 0,6 y 1</b>.<br>
+ Un SAI de <span class='n'>1500 VA / 900 W</span> tiene FP = 0,6 → <b>hay que cumplir los dos límites</b>: no superar 1500 VA ni 900 W.</div>
+ <p><b>De dónde sale el consumo de cada equipo</b>, de más a menos fiable:</p>
+ <ol class="steps"><li><span class='si'>Medido</span> con un medidor de consumo o con el propio SAI: <span class='si'>lo más fiable</span>.</li>
+ <li><b>Ficha técnica</b> del fabricante: consumo típico o máximo.</li>
+ <li><b>Etiqueta de la fuente</b>: es el máximo posible, así que <b>sobredimensiona</b>.</li></ol>`},
+ {h:"Dimensionado paso a paso", html:`<ol class="steps"><li><b>Inventario</b> de los equipos que irán conectados al SAI y su consumo en W.</li>
+ <li><b>Suma</b> de consumos = <b>carga total</b>.</li>
+ <li><b>Margen</b>: que el SAI trabaje como máximo al <span class='n'>70-80 %</span> de su capacidad (prevé crecimiento y alarga la vida).</li>
+ <li><b>Autonomía necesaria</b>: tiempo para el <b>apagado ordenado</b> de todo (o para que arranque el generador), más un margen.</li>
+ <li><b>Comprobar en las tablas del fabricante</b> la autonomía real con esa carga.</li>
+ <li><b>Elegir</b> el tipo, la forma de onda, el número y tipo de tomas, la comunicación (USB o red) y el formato (torre o rack).</li></ol>
+ <div class="note form"><span class="lbl">Las dos fórmulas del examen</span><span class="eq">Potencia mínima del SAI (W) = carga total ÷ 0,75</span><span class="eq">t (h) ≈ (V_bat × Ah × η) ÷ P(W)</span>
+ <b>V_bat × Ah</b> = energía de las baterías en <b>Wh</b> · <b>η</b> = rendimiento del inversor (<span class='n'>≈ 0,85-0,9</span>) · <b>P</b> = carga conectada.<br>
+ <b>Ejemplo del temario:</b> 2 baterías de 12 V y 9 Ah → <span class='n'>24 V × 9 Ah = 216 Wh</span>. Con η = 0,85 y 450 W → 216 × 0,85 ÷ 450 = <span class='n'>0,41 h ≈ 24 min</span>.</div>
+ <div class="note trap"><span class="lbl">Siempre añade esta coletilla</span>La cifra de la fórmula es <b>optimista</b>: cuanto más rápido se descarga una batería, <b>menos energía entrega</b> (<b>efecto Peukert</b>); además la capacidad <b>baja con la edad y el calor</b>. <b>Para decidir se usan siempre las tablas de autonomía del fabricante.</b></div>`},
+ {h:"Puntos de aplicación: qué enchufar y qué no", html:`<div class="tw"><table><thead><tr><th>Tomas CON batería</th><th>NO conectar a batería</th></tr></thead><tbody>
+ <tr><td>Servidores, NAS y cabinas de almacenamiento</td><td><b>Impresoras láser</b>: el <b>fusor</b> tiene picos de consumo muy altos</td></tr>
+ <tr><td>Electrónica de red troncal: router, cortafuegos, switches principales, ONT</td><td>Calefactores, aire acondicionado, frigoríficos, cafeteras y <b>motores</b></td></tr>
+ <tr><td>Equipos de negocio críticos: <b>TPV</b>, centralita, grabador de cámaras, control de accesos</td><td><b>Regletas encadenadas</b> detrás del SAI</td></tr>
+ <tr><td>El monitor del servidor <b>solo si hace falta</b> para el apagado</td><td>Muchos SAI tienen tomas <b>“solo protección contra picos”</b>, sin batería, para equipos no críticos</td></tr>
+ </tbody></table></div>`},
+ {h:"Topologías y ubicación del SAI", html:`<ul>
+ <li><b>SAI por equipo (distribuido):</b> barato y sencillo, pero <b>difícil de gestionar</b> si son muchos.</li>
+ <li><b>SAI centralizado</b> por rack o sala: una sola gestión.</li>
+ <li><b>SAI general + grupo electrógeno:</b> para servicios <span class='n'>24/7</span>.</li>
+ <li><b>Redundancia:</b> servidores con <b>doble fuente</b> conectada a <b>dos SAI distintos</b> (<b>N+1</b>).</li></ul>
+ <h4 class="sub">Dónde colocarlo</h4>
+ <ul><li>Sala <b>ventilada</b>, a <span class='n'>20-25 °C</span>: el calor <b>acorta mucho la vida de las baterías</b>.</li>
+ <li><b>Lejos del agua</b> y de la humedad.</li>
+ <li>En el <b>suelo o en la parte baja del rack</b>, porque <b>pesa mucho</b>.</li>
+ <li>Con <b>acceso para el mantenimiento</b> y el cambio de baterías.</li></ul>`},
+ {h:"Apagado ordenado", html:`<p>El SAI se comunica con los equipos (USB o red) mediante <b>software de gestión</b>: <b>NUT (Network UPS Tools), apcupsd, PowerChute</b>.</p>
+ <ol class="steps"><li>Se va la corriente → el SAI pasa a <b>batería</b> y <b>avisa</b> (alarma sonora, correo, registro).</li>
+ <li>Si vuelve la corriente en poco tiempo → <span class='no'>no se hace nada</span>.</li>
+ <li>Si no vuelve en <b>X minutos</b> o la batería baja del <b>N %</b> → empieza el apagado:<br><b>máquinas virtuales → servidores de aplicaciones → bases de datos → NAS</b>.</li>
+ <li>Finalmente <b>el SAI se apaga</b> para no descargar del todo las baterías.</li>
+ <li>Cuando vuelve la corriente → <b>recarga</b> y <b>arranque automático</b> en el orden correcto.</li></ol>`},
+ {h:"Verificación del funcionamiento", html:`<div class="tw"><table><thead><tr><th>Prueba</th><th>Qué comprueba</th><th>Frecuencia</th></tr></thead><tbody>
+ <tr><td>Revisión visual y del panel</td><td>Alarmas, carga, estado de la batería, temperatura</td><td>Semanal o mensual</td></tr>
+ <tr><td><b>Autotest</b> (self-test)</td><td>Que la batería y el inversor responden</td><td>Mensual (automático)</td></tr>
+ <tr><td>Revisión del registro de eventos</td><td>Cortes, transferencias, errores</td><td>Mensual</td></tr>
+ <tr><td><b>Prueba de corte simulado</b></td><td>Que los equipos aguantan y salta el aviso</td><td><b>Semestral</b></td></tr>
+ <tr><td>Calibración de autonomía</td><td>Autonomía real con la carga actual</td><td>Anual</td></tr>
+ <tr><td>Prueba del apagado ordenado</td><td>Que el software apaga todo en orden</td><td>Anual o tras cambios</td></tr>
+ <tr><td>Sustitución de baterías</td><td>Las <b>VRLA duran 3-5 años</b></td><td>Según fecha y estado</td></tr>
+ </tbody></table></div>
+ <p>Todo se anota en un <b>registro de mantenimiento</b>.</p>
+ <div class="note form"><span class="lbl">Leer la salida de upsc (NUT)</span><pre style="margin:8px 0">battery.charge: 38        ← % de batería
+battery.charge.low: 20    ← umbral para iniciar el apagado
+battery.date: 2021/03/15  ← batería de más de 3-5 años
+battery.runtime: 420      ← SEGUNDOS de autonomía (420 s = 7 min)
+input.voltage: 0.0        ← NO hay corriente en la red
+output.voltage: 230.0     ← sigue dando 230 V desde batería
+ups.load: 64              ← % de carga
+ups.status: OB DISCHRG    ← On Battery + descargando
+ups.temperature: 34       ← alta (lo bueno es 20-25 °C)
+ups.test.result: Done and warning  ← el autotest avisa</pre>
+ <b>battery.runtime viene en segundos</b>: divide entre 60 para dar minutos. Al llegar a <code>charge.low</code> (20 %) el software lanza el <b>apagado ordenado</b> y luego el SAI se apaga.</div>`}
+]},
+
+{id:"t7", short:"Biometría", n:7, title:"Sistemas biométricos", ra:"RA1 · CE i · tu cuerpo como credencial", blocks:[
+ {h:"Los tres factores de autenticación", html:`<div class="tw"><table><thead><tr><th>Factor</th><th>Ejemplos</th><th>Puede…</th></tr></thead><tbody>
+ <tr><td>Algo que <b>sabes</b></td><td>Contraseña, PIN</td><td>olvidarse, adivinarse, contarse</td></tr>
+ <tr><td>Algo que <b>tienes</b></td><td>Tarjeta, llave, móvil, llave FIDO2</td><td>perderse, prestarse, robarse</td></tr>
+ <tr><td>Algo que <b>eres</b></td><td>Huella, cara, iris, voz…</td><td><b>no se olvida ni se presta, pero tampoco se puede cambiar</b></td></tr>
+ </tbody></table></div>
+ <p>La <b>biometría</b> es el <b>tercer factor</b>: identifica o verifica a una persona por sus <b>características físicas o de comportamiento</b>. Lo más seguro es <b>combinar factores (MFA)</b>: por ejemplo <b>tarjeta + huella</b> para entrar al CPD.</p>`},
+ {h:"Qué hace “buena” a una característica biométrica (las 7)", html:`<div class="tw"><table><thead><tr><th>Propiedad</th><th>Pregunta</th></tr></thead><tbody>
+ <tr><td><span class="k">Universalidad</span></td><td>¿La tienen <b>todas</b> las personas?</td></tr>
+ <tr><td><span class="k">Unicidad</span></td><td>¿Es <b>distinta</b> en cada persona?</td></tr>
+ <tr><td><span class="k">Permanencia</span></td><td>¿Se <b>mantiene con el tiempo</b>?</td></tr>
+ <tr><td><span class="k">Mensurabilidad</span></td><td>¿Se puede <b>capturar y medir</b> fácilmente?</td></tr>
+ <tr><td><span class="k">Rendimiento</span></td><td>¿Es <b>rápida y precisa</b>?</td></tr>
+ <tr><td><span class="k">Aceptabilidad</span></td><td>¿La <b>gente acepta</b> usarla?</td></tr>
+ <tr><td><span class="k">Resistencia al fraude</span></td><td>¿Es <b>difícil de falsificar</b> o imitar?</td></tr>
+ </tbody></table></div>
+ <p>Ninguna técnica destaca en todo: <b>elegir es buscar el equilibrio</b> para cada uso.</p>`},
+ {h:"Tipos de biometría", html:`<div class="tw"><table><thead><tr><th>Fisiológica o estática — lo que <b>eres</b></th><th>De comportamiento o dinámica — cómo <b>actúas</b></th></tr></thead><tbody>
+ <tr><td>Huella dactilar</td><td><b>Voz</b> (tiene parte física y parte de comportamiento)</td></tr>
+ <tr><td>Reconocimiento facial (2D y 3D)</td><td>Firma dinámica: presión, velocidad, trazo</td></tr>
+ <tr><td>Iris · Retina</td><td>Forma de teclear: ritmo entre teclas</td></tr>
+ <tr><td>Geometría de la mano</td><td>Forma de andar (marcha)</td></tr>
+ <tr><td>Patrón de venas del dedo o la palma</td><td><i>Más variables con el tiempo, el cansancio o el estado de ánimo</i></td></tr>
+ </tbody></table></div>`},
+ {h:"Cómo funciona un sistema biométrico", html:`<p><b>Registro (enrolamiento), una sola vez:</b> captura (sensor) → extracción de características → <b>plantilla (patrón)</b> → almacenamiento <b>cifrado</b>.</p>
+ <p><b>Uso, cada acceso:</b> captura → extracción → comparación con la plantilla → ¿<b>puntuación ≥ umbral</b>? sí / no.</p>
+ <div class="note tip"><span class="lbl">Las dos ideas que más caen</span><span class='no'>No se guarda la foto ni la huella</span>, sino una <b>plantilla</b>: un conjunto de <b>datos numéricos</b> (puntos característicos de la huella, distancias de la cara). Y la comparación <span class='no'>nunca es exacta</span>: da una <b>puntuación de parecido</b> y el sistema decide según un <b>umbral</b>.</div>`},
+ {h:"Verificación (1:1) frente a identificación (1:N)", html:`<div class="tw"><table><thead><tr><th></th><th>Verificación 1:1</th><th>Identificación 1:N</th></tr></thead><tbody>
+ <tr><td>Pregunta</td><td><b>“¿Eres quien dices ser?”</b></td><td><b>“¿Quién eres?”</b></td></tr>
+ <tr><td>Previo</td><td>La persona <b>se identifica antes</b> (tarjeta, usuario)</td><td><b>No hace falta</b> tarjeta ni usuario</td></tr>
+ <tr><td>Comparación</td><td>Solo con <b>su</b> plantilla</td><td>Con <b>todas</b> las plantillas de la base de datos</td></tr>
+ <tr><td>Pros / contras</td><td><span class='si'>Más rápida y precisa</span>; la plantilla puede ir <b>en la tarjeta o el dispositivo</b> (<i>match-on-card</i>)</td><td><b>Más cómoda</b>, pero <span class='no'>más errores</span> y más riesgo: exige <b>base de datos centralizada</b></td></tr>
+ </tbody></table></div>
+ <p>Desde el punto de vista de la <b>privacidad</b>, la <b>verificación 1:1 con la plantilla en poder del usuario</b> es la opción <span class='si'>menos invasiva</span>.</p>`},
+ {h:"Los errores: FAR, FRR, EER y FTE", html:`<div class="tw"><table><thead><tr><th>Tasa</th><th>Significado</th><th>Consecuencia</th></tr></thead><tbody>
+ <tr><td><span class="k">FAR</span><br><i>False Acceptance Rate</i></td><td>Falsa aceptación: <span class='no'>entra quien no debería</span></td><td>Problema de <b>SEGURIDAD</b></td></tr>
+ <tr><td><span class="k">FRR</span><br><i>False Rejection Rate</i></td><td>Falso rechazo: <span class='no'>no entra quien sí debería</span></td><td>Problema de <b>COMODIDAD</b></td></tr>
+ <tr><td><span class="k">EER</span><br><i>Equal Error Rate</i></td><td>Punto en que <b>FAR = FRR</b></td><td>Sirve para <b>comparar sistemas</b>: cuanto <b>más bajo, mejor</b></td></tr>
+ <tr><td><span class="k">FTE</span><br><i>Failure To Enrol</i></td><td>Personas que <span class='no'>no se pueden registrar</span></td><td>Hace falta un <span class='si'>método alternativo</span></td></tr>
+ </tbody></table></div>
+ <div class="note form"><span class="lbl">Las dos fórmulas</span><span class="eq">FAR = falsas aceptaciones ÷ intentos de impostores</span><span class="eq">FRR = falsos rechazos ÷ intentos legítimos</span>
+ Se expresan en <b>%</b>: multiplica por 100. Ejemplo del temario: 5 de 1.000 impostores entran → FAR = 5/1000 = <span class='n'>0,5 %</span>. 60 de 2.000 legítimos rechazados → FRR = 60/2000 = <span class='n'>3 %</span>.</div>`},
+ {h:"El umbral: seguridad frente a comodidad", html:`<ul>
+ <li><b>Umbral bajo</b> (poco exigente): entra casi todo el mundo → <b>más FAR, menos FRR</b>. Más cómodo, menos seguro.</li>
+ <li><b>Umbral alto</b> (muy exigente): <b>menos FAR, más FRR</b>. Más seguro, menos cómodo.</li>
+ <li>Se ajusta <b>según el uso</b>: no es lo mismo un <b>CPD</b> que el <b>comedor</b> de la empresa.</li></ul>
+ <div class="note tip"><span class="lbl">Cómo razonarlo en el examen</span>Pregúntate qué error <b>duele más</b>. Si lo grave es que entre un impostor (CPD de un banco, zona crítica) → <b>umbral alto</b>, aceptas más falsos rechazos. Si lo grave es la cola y el cabreo (comedor, fichaje, gimnasio) → <b>umbral bajo o medio</b>. En un <b>móvil personal</b>, umbral <b>medio</b>: hay que equilibrar, y además tiene PIN de respaldo.</div>`},
+ {h:"Comparativa de técnicas", html:`<div class="tw"><table><thead><tr><th>Técnica</th><th>Precisión</th><th>Coste</th><th>Aceptación</th><th>Contacto</th><th>Uso típico</th></tr></thead><tbody>
+ <tr><td><b>Huella dactilar</b></td><td>Alta</td><td>Bajo</td><td>Alta</td><td>Sí</td><td>Móviles, fichaje, puertas</td></tr>
+ <tr><td><b>Facial</b></td><td>Media-alta (3D: alta)</td><td>Bajo-medio</td><td>Alta</td><td>No</td><td>Móviles, puertas, fronteras</td></tr>
+ <tr><td><b>Iris</b></td><td>Muy alta</td><td>Alto</td><td>Media</td><td>No</td><td>Zonas de alta seguridad</td></tr>
+ <tr><td><b>Retina</b></td><td>Muy alta</td><td>Muy alto</td><td><span class='no'>Baja</span></td><td>Muy cercano</td><td>Instalaciones críticas</td></tr>
+ <tr><td><b>Geometría de la mano</b></td><td>Media</td><td>Medio</td><td>Alta</td><td>Sí</td><td>Control de acceso o de presencia</td></tr>
+ <tr><td><b>Venas del dedo o la palma</b></td><td>Muy alta</td><td>Medio-alto</td><td>Alta</td><td>Sin contacto (o casi)</td><td>Banca, hospitales, CPD</td></tr>
+ <tr><td><b>Voz</b></td><td>Media</td><td>Bajo</td><td>Alta</td><td>No</td><td>Atención telefónica</td></tr>
+ <tr><td><b>Firma dinámica</b></td><td>Media</td><td>Bajo</td><td>Alta</td><td>Sí (tableta)</td><td>Firma de documentos</td></tr>
+ </tbody></table></div>
+ <p>Tecnologías del sensor de huella: <b>capacitancia</b> (velocidad muy alta, coste bajo), <b>resistividad</b>, <b>ultrasonido</b> (resolución alta, coste alto, alta seguridad), <b>térmica</b> (resolución baja, coste muy bajo), <b>acústica</b>, <b>electromagnética</b> (alta resolución y coste) y <b>óptica</b>.</p>`},
+ {h:"Ventajas", html:`<ul>
+ <li><b>No se olvida, no se pierde y no se presta</b>: se acabaron las tarjetas prestadas y las contraseñas compartidas.</li>
+ <li><b>Vinculada a la persona</b> → mejor <span class='si'>trazabilidad</span> de quién accede.</li>
+ <li><b>Comodidad y rapidez</b>: no hay que recordar nada.</li>
+ <li><span class='no'>Difícil de transferir</span>: evita que un compañero <b>fiche por otro</b>.</li>
+ <li><b>Refuerza la MFA</b>: como segundo factor sube mucho la seguridad.</li>
+ <li><b>Menos gestión</b>: no hay que reponer tarjetas ni restablecer contraseñas.</li></ul>`},
+ {h:"Inconvenientes y riesgos (riesgo → medida)", html:`<div class="tw"><table><thead><tr><th>Riesgo</th><th>Explicación</th><th>Medida</th></tr></thead><tbody>
+ <tr><td><b>No se puede cambiar</b></td><td>Si se compromete una plantilla, no puedes “cambiar de huella”</td><td>Plantillas <b>cifradas y revocables</b>, no guardar imágenes</td></tr>
+ <tr><td><b>Suplantación</b></td><td>Réplicas de huella, fotos o máscaras</td><td><span class='si'>Detección de vida (liveness)</span></td></tr>
+ <tr><td><b>Falsos rechazos</b></td><td>Heridas, edad, suciedad, gafas, mascarilla</td><td>Umbral adecuado, segundo intento, alternativa</td></tr>
+ <tr><td><b>Exclusión</b></td><td>Personas que no se pueden registrar (<b>FTE</b>)</td><td><b>Método alternativo no biométrico</b></td></tr>
+ <tr><td><b>Privacidad</b></td><td>Dato muy sensible que revela información de la persona</td><td>Minimización, <span class='si'>verificación 1:1</span>, plantilla en el dispositivo</td></tr>
+ <tr><td><b>Coste</b></td><td>Lectores, software, integración y mantenimiento</td><td>Usarla <b>solo donde está justificada</b></td></tr>
+ </tbody></table></div>`},
+ {h:"Marco legal: son datos especiales", html:`<ul>
+ <li><b>RGPD, art. 9:</b> los datos biométricos que identifican de forma única a una persona son <b>categoría especial</b>. Su tratamiento está <span class='no'>prohibido salvo excepciones</span>.</li>
+ <li>Antes de implantarlos hace falta, en general, una <b>evaluación de impacto (EIPD)</b> que demuestre que son <b>necesarios y proporcionados</b>.</li>
+ <li><b>AEPD, guía sobre control de presencia biométrico (noviembre de 2023):</b>
+ <ul><li>el <b>consentimiento del trabajador no suele ser válido</b>, por el <b>desequilibrio</b> con la empresa;</li>
+ <li>si existe una alternativa <span class='si'>menos invasiva</span> (tarjeta, código), la biometría <span class='no'>deja de ser necesaria</span>;</li>
+ <li>para <b>fichar</b> (registro de jornada), <span class='no'>en general no está justificada</span>.</li></ul></li>
+ <li><b>Reglamento europeo de IA:</b> prohíbe, entre otros usos, el <b>reconocimiento de emociones en el trabajo y en los centros educativos</b>.</li></ul>
+ <div class="note trap"><span class="lbl">Respuesta modelo</span>“¿Puede el gimnasio o la empresa obligarme a entrar con la huella?” → <b>En general no</b>: es un dato de <b>categoría especial</b> (RGPD art. 9), el <b>consentimiento del trabajador no es válido</b> por el desequilibrio y, si hay una <b>alternativa menos invasiva</b> como la tarjeta, la biometría <span class='no'>no es necesaria ni proporcionada</span>. Para <b>fichar</b> la AEPD dice que no está justificada.</div>`},
+ {h:"Buenas prácticas al implantar biometría (las 8)", html:`<ol class="steps">
+ <li><b>Justificar la necesidad</b>: ¿hay una alternativa menos invasiva? → <b>EIPD</b>.</li>
+ <li>Preferir la <span class='si'>verificación 1:1</span> a la identificación 1:N.</li>
+ <li>Guardar <b>plantillas cifradas, nunca imágenes</b>; mejor en la <b>tarjeta o el dispositivo</b> que en un servidor central.</li>
+ <li>Exigir <span class='si'>detección de vida</span> en los lectores.</li>
+ <li><b>Combinar con otro factor</b> en zonas críticas: tarjeta + biometría.</li>
+ <li>Ofrecer <b>siempre un método alternativo</b>.</li>
+ <li><b>Informar</b> a las personas y <b>borrar</b> las plantillas cuando ya no hagan falta (bajas).</li>
+ <li>Ajustar el <b>umbral</b> según el nivel de riesgo de cada zona.</li></ol>`}
+]}
+];
+/* ============ GLOSARIO ============ */
+const GLOSARIO = [
+["CIDAN","Los 5 objetivos de la seguridad: Confidencialidad, Integridad, Disponibilidad, Autenticidad y No repudio.","Tema 1"],
+["Confidencialidad","Solo las personas autorizadas pueden acceder a la información.","Tema 1"],
+["Integridad","Los datos no se modifican de forma no autorizada.","Tema 1"],
+["Disponibilidad","Los sistemas y datos están accesibles cuando se necesitan.","Tema 1"],
+["Autenticidad","Permite comprobar la identidad de usuarios y sistemas.","Tema 1"],
+["No repudio","Impide que una persona niegue haber realizado una acción. Hay de origen y de destino.","Tema 1"],
+["TTP (Trusted Third Party)","Tercera parte confiable que avala la identidad en los sistemas de autenticidad.","Tema 1"],
+["Amenaza","Algo o alguien capaz de causar daño; agente con capacidad e intención de causarlo.","Tema 1"],
+["Vulnerabilidad","Debilidad de un sistema.","Tema 1"],
+["Riesgo","Probabilidad de que una amenaza aproveche una vulnerabilidad.","Tema 1"],
+["0-day","Vulnerabilidad desconocida para la que todavía no existe parche en el momento del ataque.","Tema 1"],
+["Política de seguridad","Normas y protocolos que siguen los responsables para proteger los sistemas a nivel físico y lógico.","Tema 2"],
+["Plan de contingencia","Plan para recuperarse de los desastres. 5 etapas: Evaluación, Planificación, Pruebas, Ejecución y Recuperación.","Tema 2"],
+["Auditoría","Evaluación sistemática de políticas, protocolos, planes y dispositivos. Interna o externa; las externas suelen ser más completas.","Tema 2"],
+["Seguridad física","Protege cada dispositivo o el CPD frente a incendios, robos, inundaciones y cortes eléctricos.","Tema 2"],
+["Seguridad lógica","Protege el software: datos, aplicaciones, SO y comunicaciones, frente a malware y accesos no autorizados.","Tema 2"],
+["Seguridad activa","Medidas en la interacción usuario-sistema. Proactiva: previene y detecta antes del ataque.","Tema 2"],
+["Seguridad pasiva","Protege por el hecho de existir. Soluciona o minimiza los efectos de un ataque ya producido.","Tema 2"],
+["CPD","Centro de Procesamiento de Datos: centraliza servidores y equipos críticos en racks. Funciona 24 h y se mantiene a 17-19 °C.","Tema 3"],
+["Centro de respaldo","Réplica casi exacta del CPD, alejada de él, para recuperar el sistema rápidamente ante un desastre.","Tema 3"],
+["Grupo electrógeno","Generador que alimenta el CPD cuando el corte eléctrico es largo (el SAI solo da minutos).","Tema 3"],
+["Control de acceso","Mecanismos que permiten o deniegan a un sujeto realizar una operación sobre un objeto.","Tema 4"],
+["IAA","Las 3 fases: Identificación, Autenticación y Autorización. Las ACL actúan en la autorización.","Tema 4"],
+["Sujeto","Quien accede: usuario, grupo, proceso o equipo.","Tema 4"],
+["Objeto","A lo que se accede: fichero, carpeta, impresora, puerto o sala.","Tema 4"],
+["Matriz de control de acceso","Tabla sujeto × objeto con los permisos. Enorme y casi vacía, por eso se guarda por columnas (ACL) o filas (capacidades).","Tema 4"],
+["ACL","Access Control List: lista asociada a un objeto con quién puede hacer qué con él (por columnas).","Tema 4"],
+["ACE","Access Control Entry: cada línea de una ACL. Sujeto + permiso + permitir o denegar.","Tema 4"],
+["Lista de capacidades","Lo contrario de la ACL: cada sujeto guarda lo que puede hacer (por filas).","Tema 4"],
+["Mínimo privilegio","Cada sujeto tiene solo los permisos imprescindibles para su trabajo.","Tema 4"],
+["Necesidad de saber","Solo se accede a la información que hace falta para la tarea.","Tema 4"],
+["Denegar por defecto","Lo que no está permitido explícitamente está prohibido.","Tema 4"],
+["Segregación de funciones","Una tarea crítica no depende de una sola persona: quien pide no aprueba.","Tema 4"],
+["Trazabilidad","Cuentas personales e intransferibles y accesos registrados.","Tema 4"],
+["DAC","Discrecional: el propietario del recurso decide quién accede. Windows, Linux, nube.","Tema 4"],
+["MAC","Obligatorio: decide el sistema según etiquetas de clasificación y habilitación. Ni el propietario puede saltárselo. SELinux.","Tema 4"],
+["RBAC","Basado en roles: los permisos se asignan a roles y los usuarios tienen roles. ERP, Active Directory.","Tema 4"],
+["ABAC","Basado en atributos del usuario, del recurso y del contexto (hora, ubicación, dispositivo).","Tema 4"],
+["Explosión de roles","Problema del RBAC: crear tantos roles que la administración se vuelve ingobernable.","Tema 4"],
+["Máscara (ACL POSIX)","Límite máximo de permisos para usuarios y grupos añadidos. No afecta al propietario ni a 'otros'.","Tema 4"],
+["setfacl / getfacl","Comandos para modificar y mostrar las ACL POSIX en Linux.","Tema 4"],
+["Herencia (NTFS)","Las carpetas pasan sus permisos a lo que contienen.","Tema 4"],
+["Orden de evaluación NTFS","Denegar explícito, permitir explícito, denegar heredado, permitir heredado.","Tema 4"],
+["Deny implícito","Regla final invisible de toda ACL de red: lo que no coincide con ninguna regla se descarta.","Tema 4"],
+["Cuenta zombi","Cuenta de alguien que ya dejó la empresa y no se revocó.","Tema 4"],
+["Fuerza bruta","Probar todas las combinaciones posibles. Defensa: longitud.","Tema 5"],
+["Ataque de diccionario","Probar palabras y contraseñas conocidas. Defensa: lista negra.","Tema 5"],
+["Credential stuffing","Usar usuario y contraseña filtrados de otra web. Defensa: no reutilizar y MFA.","Tema 5"],
+["Password spraying","Probar pocas contraseñas comunes en muchas cuentas, para no disparar bloqueos.","Tema 5"],
+["Tabla rainbow","Tabla precalculada de hash → contraseña. La sal la inutiliza.","Tema 5"],
+["Phishing","Web o correo falso que te pide la contraseña.","Tema 5"],
+["Keylogger","Malware que captura lo que escribes con el teclado.","Tema 5"],
+["Shoulder surfing","Mirar por encima del hombro mientras alguien teclea.","Tema 5"],
+["Ingeniería social","Engañar a la persona para que entregue sus credenciales.","Tema 5"],
+["Entropía","Medida de la fuerza de una contraseña aleatoria: bits = L × log₂(N). Cada bit duplica los intentos.","Tema 5"],
+["Hash","Función de un solo sentido con la que se guardan las contraseñas, nunca en texto plano.","Tema 5"],
+["Sal (salt)","Valor aleatorio distinto para cada usuario que se mezcla con la contraseña. Evita las tablas rainbow.","Tema 5"],
+["Hash lento","Algoritmo pensado para contraseñas: Argon2id, bcrypt, scrypt, yescrypt, PBKDF2. MD5 y SHA no sirven.","Tema 5"],
+["MFA","Autenticación multifactor: combinar factores de tipos distintos (saber, tener, ser).","Tema 5"],
+["TOTP","Código temporal de una app de autenticación. Más seguro que el SMS.","Tema 5"],
+["FIDO2","Llave física de seguridad; junto con las passkeys, el factor más fuerte.","Tema 5"],
+["Passkey","Par de claves criptográficas guardadas en el dispositivo que sustituye la contraseña. Resistente al phishing.","Tema 5"],
+["Gestor de contraseñas","Programa que guarda una contraseña única y larga por servicio; solo se recuerda la maestra. Bitwarden, KeePassXC.","Tema 5"],
+["NIST SP 800-63B-4","Guía de 2025: 15 caracteres si es el único factor, 8 con MFA, sin reglas de composición ni caducidad periódica.","Tema 5"],
+["AEPD","Agencia Española de Protección de Datos. Hay que notificarle las brechas de datos personales.","Tema 5"],
+["Corte","Falta total de tensión durante segundos u horas. Provoca apagado brusco y pérdida de datos.","Tema 6"],
+["Microcorte","Interrupción de milisegundos que provoca reinicios inesperados.","Tema 6"],
+["Subtensión","Tensión por debajo de lo normal. Fallos, bloqueos y desgaste de las fuentes.","Tema 6"],
+["Pico o transitorio","Subida muy breve y muy alta (rayos, maniobras). Daña fuentes y placas.","Tema 6"],
+["Ruido eléctrico","Interferencias de motores y maquinaria que provocan errores e inestabilidad.","Tema 6"],
+["SAI / UPS","Equipo con baterías que mantiene la alimentación, filtra la tensión y permite el apagado ordenado.","Tema 6"],
+["Autonomía","Tiempo que el SAI puede mantener los equipos con batería.","Tema 6"],
+["Inversor","Componente del SAI que convierte la corriente continua de la batería en alterna de 230 V.","Tema 6"],
+["Rectificador","Componente que carga las baterías del SAI.","Tema 6"],
+["Bypass","Alimenta los equipos directamente desde la red si el SAI falla o está en mantenimiento.","Tema 6"],
+["VRLA","Batería de plomo-ácido sellada. Dura unos 3-5 años.","Tema 6"],
+["Off-line (VFD)","SAI que conmuta a batería al fallar la red. 2-10 ms. Protege de cortes y picos. PC de oficina.","Tema 6"],
+["Line-interactive (VI)","SAI con AVR que regula la tensión sin gastar batería. 2-4 ms. Oficinas pequeñas y servidores.","Tema 6"],
+["On-line doble conversión (VFI)","Los equipos van siempre por el inversor. Conmutación cero, senoidal pura, corrige frecuencia. CPD.","Tema 6"],
+["AVR","Regulación automática de tensión del SAI interactivo: corrige subidas y bajadas sin usar batería.","Tema 6"],
+["PFC activo","Corrector del factor de potencia de las fuentes de servidor. Exige onda senoidal pura.","Tema 6"],
+["VA","Potencia aparente = tensión × intensidad. Uno de los dos límites del SAI.","Tema 6"],
+["W","Potencia real que consumen los equipos. W = VA × FP.","Tema 6"],
+["Factor de potencia (FP)","Relación entre W y VA. En los SAI actuales, entre 0,6 y 1.","Tema 6"],
+["Efecto Peukert","Cuanto más rápido se descarga una batería, menos energía entrega. Hace la fórmula de autonomía optimista.","Tema 6"],
+["Apagado ordenado","Secuencia controlada: máquinas virtuales, servidores de aplicaciones, bases de datos y NAS.","Tema 6"],
+["NUT","Network UPS Tools: software de gestión del SAI en Linux. El comando upsc muestra su estado.","Tema 6"],
+["SNMP","Protocolo de gestión por red; la tarjeta SNMP permite monitorizar el SAI remotamente.","Tema 6"],
+["N+1","Redundancia: servidores con doble fuente conectada a dos SAI distintos.","Tema 6"],
+["Biometría","Identifica o verifica a una persona por sus características físicas o de comportamiento. Es el factor 'algo que eres'.","Tema 7"],
+["Biometría fisiológica","Estática, lo que eres: huella, facial, iris, retina, geometría de la mano, venas.","Tema 7"],
+["Biometría de comportamiento","Dinámica, cómo actúas: voz, firma dinámica, forma de teclear, forma de andar.","Tema 7"],
+["Plantilla (patrón)","Conjunto de datos numéricos extraídos de la muestra. No se guarda la foto ni la huella.","Tema 7"],
+["Enrolamiento","Registro inicial: captura, extracción de características, plantilla y almacenamiento cifrado.","Tema 7"],
+["Umbral","Puntuación mínima de parecido para aceptar. Alto: más seguro y más incómodo. Bajo: al contrario.","Tema 7"],
+["Verificación (1:1)","'¿Eres quien dices ser?' Se compara solo con su plantilla. Más rápida, precisa y menos invasiva.","Tema 7"],
+["Identificación (1:N)","'¿Quién eres?' Se compara con todas las plantillas. Más cómoda pero más errores y requiere BD central.","Tema 7"],
+["FAR","False Acceptance Rate: entra quien no debería. Problema de SEGURIDAD. FAR = falsas aceptaciones ÷ intentos de impostores.","Tema 7"],
+["FRR","False Rejection Rate: no entra quien sí debería. Problema de COMODIDAD. FRR = falsos rechazos ÷ intentos legítimos.","Tema 7"],
+["EER","Equal Error Rate: punto donde FAR = FRR. Sirve para comparar sistemas; cuanto más bajo, mejor.","Tema 7"],
+["FTE","Failure To Enrol: personas que no se pueden registrar. Obliga a tener un método alternativo.","Tema 7"],
+["Detección de vida (liveness)","Comprueba que la muestra viene de una persona viva, no de una réplica, foto o máscara.","Tema 7"],
+["Match-on-card","La plantilla se guarda en la tarjeta o el dispositivo del usuario, no en un servidor central.","Tema 7"],
+["RGPD art. 9","Los datos biométricos que identifican de forma única son categoría especial: tratamiento prohibido salvo excepciones.","Tema 7"],
+["EIPD","Evaluación de impacto en protección de datos. Necesaria, en general, antes de implantar biometría.","Tema 7"]
+];
+
+/* ============ BANCO DE PREGUNTAS ============ */
+/* t = test [enunciado, [opciones], índiceCorrecto, explicación] */
+const TEST = [
+["¿Cuál de estos NO forma parte del modelo CIDAN?",["Confidencialidad","Integridad","Trazabilidad","No repudio"],2,"CIDAN = Confidencialidad, Integridad, Disponibilidad, Autenticidad y No repudio. La trazabilidad es un principio de las ACL, no del CIDAN."],
+["El riesgo se define como…",["algo capaz de causar daño","una debilidad del sistema","la probabilidad de que una amenaza aproveche una vulnerabilidad","el daño económico de un incidente"],2,"Amenaza = algo capaz de causar daño. Vulnerabilidad = debilidad. Riesgo = probabilidad de que la amenaza aproveche la vulnerabilidad."],
+["Generar un SHA-1 de un archivo protege sobre todo la…",["confidencialidad","integridad","disponibilidad","autenticidad"],1,"El hash permite comprobar que el archivo no se ha modificado: integridad."],
+["Un SAI es una medida de seguridad…",["física y activa","lógica y pasiva","física y pasiva","lógica y activa"],2,"Protege el hardware (física) y actúa minimizando los efectos de un problema ya producido (pasiva)."],
+["¿Cuántas etapas tiene un plan de contingencia según el temario?",["3","4","5","6"],2,"Cinco: Evaluación, Planificación, Pruebas, Ejecución y Recuperación."],
+["En la etapa de Pruebas de un plan de contingencia…",["se identifican los activos críticos","se simula un entorno de prueba para comprobar la viabilidad del plan","se restablece el sistema tras el incidente","se documenta y valida el plan"],1,"Identificar activos es Evaluación; documentar y validar es Planificación; restablecer es Recuperación."],
+["Según el temario, las auditorías más completas suelen ser…",["las internas, porque conocen la empresa","las externas","las automáticas","las que emite la propia AEPD"],1,"Por norma general las externas, por su independencia; además pueden emitir un certificado."],
+["La temperatura interior recomendada de un CPD es de…",["10-12 °C","17-19 °C","22-24 °C","28-30 °C"],1,"17-19 °C, lo que exige un sistema de refrigeración muy potente."],
+["¿Dónde conviene ubicar un CPD dentro de un edificio de la empresa?",["En el sótano, por seguridad","En plantas bajas, evitando sótanos","En la última planta","Junto al almacén de material"],1,"En plantas bajas porque soporta mucho peso, y evitando los sótanos por el riesgo de inundación."],
+["Un destornillador imantado cerca de un disco duro es un riesgo…",["eléctrico","electromagnético","humano deliberado","de obsolescencia"],1,"Problemas electromagnéticos: imanes, altavoces y destornilladores imantados."],
+["Las ACL actúan en la fase de…",["identificación","autenticación","autorización","auditoría"],2,"Identificación (quién dices ser), autenticación (demuéstralo) y autorización (qué puedes hacer). Las ACL están en la autorización."],
+["Cada línea de una ACL se llama…",["ACE","ACL secundaria","token","capability"],0,"ACE, Access Control Entry: sujeto + permiso + permitir o denegar."],
+["La ventaja principal de una ACL frente a una lista de capacidades es que…",["es fácil saber todo lo que puede hacer un usuario","es fácil saber quién accede a un recurso y revocarlo","ocupa menos espacio siempre","no necesita autenticación"],1,"La ACL se organiza por objeto, así que resulta fácil ver y revocar quién accede a ese recurso. Saber todo lo de un usuario es la ventaja de las capacidades."],
+["“Lo que no está permitido explícitamente está prohibido” es el principio de…",["mínimo privilegio","necesidad de saber","denegar por defecto","segregación de funciones"],2,"Denegar por defecto."],
+["Que quien da de alta a un proveedor no pueda aprobar sus pagos responde al principio de…",["trazabilidad","segregación de funciones","necesidad de saber","denegar por defecto"],1,"Segregación de funciones: una tarea crítica no depende de una sola persona; quien pide no aprueba."],
+["En el modelo MAC, quién decide el acceso es…",["el propietario del recurso","el sistema, según etiquetas","el administrador mediante roles","un motor de reglas sobre atributos"],1,"MAC: el sistema decide según nivel de clasificación y habilitación. Ni el propietario puede saltárselo."],
+["Compartir un documento de Google Drive con dos compañeros es un ejemplo de…",["DAC","MAC","RBAC","ABAC"],0,"El propietario decide: discrecional (DAC)."],
+["“La VPN solo deja conectarse en horario laboral, desde portátiles corporativos y desde España” es…",["DAC","MAC","RBAC","ABAC"],3,"Depende de atributos del usuario, del recurso y del contexto: ABAC."],
+["El modelo más usado en empresas (ERP, Active Directory) es…",["DAC","MAC","RBAC","ABAC"],2,"RBAC, basado en roles: facilita altas, bajas y cambios de puesto."],
+["En Linux, el permiso x sobre un directorio significa…",["ver qué archivos contiene","crear y borrar archivos","acceder o entrar al directorio","ejecutar todos sus archivos"],2,"Sobre directorios: r = ver el contenido, w = crear/eliminar/renombrar, x = entrar."],
+["En una ACL POSIX, la máscara limita los permisos de…",["el propietario del archivo","otros (other)","los usuarios y grupos añadidos y el grupo propietario","absolutamente todos"],2,"La máscara recorta los permisos efectivos de todo lo que no sea el propietario ni 'otros'."],
+["El orden de evaluación de permisos NTFS, de más a menos prioridad, es…",["permitir explícito, denegar explícito, permitir heredado, denegar heredado","denegar explícito, permitir explícito, denegar heredado, permitir heredado","denegar heredado, denegar explícito, permitir heredado, permitir explícito","el orden es irrelevante, siempre gana denegar"],1,"Denegar explícito → permitir explícito → denegar heredado → permitir heredado."],
+["Al acceder por red a una carpeta compartida de Windows, los permisos de recurso compartido y NTFS se combinan y gana…",["el de recurso compartido","el NTFS","el más restrictivo","el más permisivo"],2,"Gana el más restrictivo. Si el acceso es local, el permiso de recurso compartido no se aplica."],
+["En una ACL de red, cuando un paquete coincide con una regla…",["se sigue comprobando el resto por si hay una más específica","se aplica esa regla y se deja de mirar","se aplica la última regla que coincida","se aplica el deny implícito"],1,"Se evalúan en orden y se aplica la primera coincidencia; después se deja de leer."],
+["Al final de toda ACL de red hay…",["un permit any implícito","un deny any implícito","nada, depende del fabricante","una regla de log"],1,"Un denegar todo implícito."],
+["En una ACL de red, las reglas más específicas deben colocarse…",["al final, después de las generales","antes que las generales","en una ACL aparte","en cualquier posición, da igual"],1,"Si una regla general que deniega va antes, la específica que permite nunca se llega a evaluar."],
+["El ataque que consiste en probar pocas contraseñas muy comunes en muchísimas cuentas se llama…",["credential stuffing","password spraying","fuerza bruta","ataque híbrido"],1,"Password spraying: pocas contraseñas × muchas cuentas, para no disparar los bloqueos."],
+["Usar un usuario y contraseña filtrados de otra web es…",["password spraying","credential stuffing","shoulder surfing","un ataque de diccionario"],1,"Credential stuffing. La defensa es no reutilizar contraseñas y usar MFA."],
+["La defensa principal contra la fuerza bruta es…",["añadir un símbolo obligatorio","la longitud","cambiar la contraseña cada mes","usar MD5 con muchas iteraciones"],1,"La longitud manda sobre la complejidad: cada carácter añade entre 4,7 y 6,5 bits."],
+["La sal (salt) sirve para…",["cifrar la contraseña y poder descifrarla después","que dos contraseñas iguales den hashes distintos e inutilizar las tablas rainbow","acelerar el cálculo del hash","sustituir al MFA"],1,"Es un valor aleatorio distinto por usuario; dos contraseñas iguales dan hashes distintos."],
+["¿Cuál de estos algoritmos es adecuado para guardar contraseñas?",["MD5","SHA-1","SHA-256 a secas","Argon2id"],3,"Hacen falta hash lentos y diseñados para contraseñas: Argon2id, bcrypt, scrypt, yescrypt, PBKDF2."],
+["Según el NIST SP 800-63B-4 (2025), la longitud mínima si la contraseña es el único factor es…",["8 caracteres","12 caracteres","15 caracteres","64 caracteres"],2,"15 si es el único factor y 8 si hay MFA. Y hay que permitir al menos 64."],
+["¿Qué recomienda el NIST 2025 sobre el cambio periódico de contraseñas?",["Cada 30 días","Cada 90 días","No obligar a cambios periódicos, solo si hay indicios de compromiso","Cada vez que cambie el responsable de IT"],2,"Los cambios frecuentes llevan a patrones previsibles como Verano2026! → Otoño2026!."],
+["Según el NIST 2025, las preguntas de seguridad (“nombre de tu primera mascota”)…",["son una buena forma de recuperar la cuenta","están prohibidas","solo valen para cuentas de administrador","equivalen a un segundo factor"],1,"Pistas y preguntas de seguridad están prohibidas: la respuesta suele ser pública o adivinable."],
+["De los siguientes métodos de MFA, el más fuerte es…",["SMS","app con código TOTP","notificación con número","llave FIDO2 o passkey"],3,"SMS < TOTP < notificación con número < FIDO2 o passkey."],
+["La entropía de una contraseña aleatoria se calcula como…",["L + log₂(N)","L × log₂(N)","N × log₂(L)","L × N"],1,"bits = L × log₂(N), con L la longitud y N el tamaño del alfabeto."],
+["Una interrupción de la tensión de solo unos milisegundos es un…",["corte","microcorte","pico","ruido eléctrico"],1,"Microcorte: provoca reinicios inesperados."],
+["Que cada vez que arranca el compresor del aire acondicionado la tensión baje unos segundos es…",["una subtensión","una sobretensión sostenida","un pico","variación de frecuencia"],0,"Subtensión: tensión por debajo de lo normal."],
+["El componente del SAI que convierte la corriente continua de la batería en alterna es el…",["rectificador","inversor","bypass","AVR"],1,"El inversor. El rectificador o cargador carga las baterías."],
+["¿Qué tipo de SAI tiene tiempo de conmutación cero y corrige también la frecuencia?",["Off-line (VFD)","Line-interactive (VI)","On-line doble conversión (VFI)","Todos por igual"],2,"En el on-line los equipos van siempre por el inversor, así que la conmutación es cero."],
+["Un servidor con fuente de PFC activo necesita…",["onda escalonada","onda senoidal pura","cualquier forma de onda","solo protección contra picos"],1,"Las fuentes con PFC activo pueden funcionar mal con onda escalonada."],
+["Un SAI de 1500 VA / 900 W tiene un factor de potencia de…",["0,45","0,6","0,75","1,67"],1,"FP = W ÷ VA = 900 ÷ 1500 = 0,6."],
+["Para dejar margen, un SAI debe trabajar como máximo al…",["50 % de su capacidad","70-80 %","90 %","100 %"],1,"Se calcula como carga total ÷ 0,75, para prever crecimiento y alargar su vida."],
+["¿Qué equipo NO debe conectarse nunca a una toma con batería del SAI?",["Un switch principal","Un NAS","Una impresora láser","Un TPV"],2,"El fusor de la impresora láser tiene picos de consumo muy altos."],
+["En el apagado ordenado, el orden correcto es…",["NAS, bases de datos, servidores de aplicaciones, máquinas virtuales","máquinas virtuales, servidores de aplicaciones, bases de datos, NAS","bases de datos, NAS, máquinas virtuales, servidores de aplicaciones","todos a la vez"],1,"Se apaga de arriba abajo: primero lo que depende de otros, y el almacenamiento al final."],
+["Las baterías VRLA de un SAI duran aproximadamente…",["1 año","3-5 años","10 años","toda la vida del SAI"],1,"3-5 años, y el calor acorta mucho su vida."],
+["La prueba de corte simulado se hace con una frecuencia orientativa…",["semanal","mensual","semestral","cada 5 años"],2,"Semestral. El autotest es mensual y la calibración de autonomía, anual."],
+["La temperatura recomendada de la sala donde está el SAI es de…",["10-15 °C","17-19 °C","20-25 °C","30-35 °C"],2,"20-25 °C. Ojo: 17-19 °C es la del CPD, no la del SAI."],
+["La biometría corresponde al factor…",["algo que sabes","algo que tienes","algo que eres","algo que haces saber"],2,"Es el tercer factor: algo que eres."],
+["El inconveniente propio del factor biométrico es que…",["puede olvidarse","puede prestarse","no se puede cambiar","caduca cada 90 días"],2,"Si se compromete una plantilla no puedes 'cambiar de huella'."],
+["¿Cuál de estas es una biometría de comportamiento?",["Iris","Venas de la palma","Forma de teclear","Geometría de la mano"],2,"Comportamiento o dinámica: voz, firma dinámica, forma de teclear y forma de andar."],
+["Un sistema biométrico guarda…",["la foto o la imagen de la huella","una plantilla con datos numéricos","la contraseña cifrada del usuario","un hash del DNI"],1,"No se guarda la imagen, sino una plantilla: datos numéricos de los puntos característicos."],
+["Desbloquear el móvil con la huella es un caso de…",["verificación 1:1","identificación 1:N","enrolamiento","autorización"],0,"Se compara solo con la plantilla del dueño del dispositivo: 1:1."],
+["Una puerta que se abre sola al reconocer la cara de cualquier empleado registrado es…",["verificación 1:1","identificación 1:N","detección de vida","match-on-card"],1,"No hay identificación previa: se compara con todas las plantillas (1:N)."],
+["Que entre quien no debería es un problema de…",["FRR, de comodidad","FAR, de seguridad","FTE, de exclusión","EER, de comparación"],1,"FAR (False Acceptance Rate) es un problema de seguridad."],
+["Si subimos el umbral de un sistema biométrico…",["baja el FAR y sube el FRR","sube el FAR y baja el FRR","bajan los dos","no cambia nada"],0,"Más exigente: entran menos impostores pero se rechaza más a los legítimos."],
+["El EER sirve para…",["medir cuántas personas no se pueden registrar","comparar sistemas: es el punto donde FAR = FRR","calcular la autonomía del lector","fijar el umbral legalmente obligatorio"],1,"Equal Error Rate: cuanto más bajo, mejor el sistema."],
+["Que haya personas a las que el sistema no puede registrar se mide con…",["FAR","FRR","EER","FTE"],3,"FTE, Failure To Enrol. Obliga a ofrecer un método alternativo."],
+["La medida contra la suplantación con fotos, máscaras o réplicas de huella es…",["subir el umbral al máximo","la detección de vida (liveness)","usar identificación 1:N","cifrar la plantilla"],1,"La detección de vida comprueba que la muestra viene de una persona viva."],
+["Según el RGPD, los datos biométricos que identifican de forma única a una persona son…",["datos ordinarios","datos de categoría especial (art. 9)","datos anónimos","datos públicos"],1,"Categoría especial: su tratamiento está prohibido salvo excepciones."],
+["Según la guía de la AEPD de noviembre de 2023, usar biometría para fichar…",["es obligatorio desde 2024","en general no está justificada","solo vale con consentimiento del trabajador","es la opción recomendada"],1,"Además, el consentimiento del trabajador no suele ser válido por el desequilibrio con la empresa."],
+["Desde el punto de vista de la privacidad, la opción menos invasiva es…",["identificación 1:N con base de datos central","verificación 1:1 con la plantilla en poder del usuario","guardar las imágenes cifradas en el servidor","reconocimiento facial en la entrada"],1,"Verificación 1:1 y plantilla en la tarjeta o el dispositivo (match-on-card)."],
+["Para la sala de servidores de un banco, la configuración más adecuada es…",["solo huella con umbral bajo","tarjeta + biometría con umbral alto","solo tarjeta","reconocimiento facial 2D con umbral bajo"],1,"Zona crítica: MFA (tarjeta + biometría) y umbral alto, asumiendo más falsos rechazos."],
+["El Reglamento europeo de IA prohíbe, entre otros usos…",["el uso de huella para desbloquear móviles","el reconocimiento de emociones en el trabajo y en los centros educativos","cualquier uso del reconocimiento facial","las plantillas cifradas"],1,"Prohíbe el reconocimiento de emociones en el ámbito laboral y educativo."]
+];
+/* c = cortas [enunciado, solución] */
+const CORTAS = [
+["Define amenaza, vulnerabilidad y riesgo, y pon un ejemplo que relacione los tres.","<b>Amenaza:</b> algo o alguien capaz de causar daño; el agente con capacidad e intención de causarlo. <b>Vulnerabilidad:</b> debilidad de un sistema. <b>Riesgo:</b> probabilidad de que una amenaza aproveche una vulnerabilidad.<br><b>Ejemplo:</b> un atacante externo (amenaza) explota un fallo 0-day sin parche (vulnerabilidad); el riesgo es la posibilidad de que consiga acceso no autorizado, robo o modificación de datos o instalación de malware."],
+["Explica los 5 objetivos del modelo CIDAN con un ejemplo de medida para cada uno.","<b>Confidencialidad:</b> solo los autorizados acceden → cifrado, contraseñas, control de acceso. <b>Integridad:</b> los datos no se modifican sin autorización → funciones hash, copias de seguridad. <b>Disponibilidad:</b> accesibles cuando se necesitan → SAI, RAID, redundancia. <b>Autenticidad:</b> comprobar la identidad → firma electrónica, biometría, certificados. <b>No repudio:</b> nadie puede negar una acción → firma electrónica, acuses de recibo."],
+["¿Qué diferencia hay entre seguridad activa y pasiva? Pon dos ejemplos de cada una.","La <b>activa</b> actúa en la interacción usuario-sistema y es <b>proactiva</b>: previene y detecta <b>antes</b> de que ocurra el ataque (antivirus, cortafuegos, contraseñas, ACL). La <b>pasiva</b> protege por el hecho de existir y <b>soluciona o minimiza</b> los efectos de un ataque <b>ya producido</b> (copias de seguridad, RAID, SAI)."],
+["Enumera y explica brevemente las 5 etapas de un plan de contingencia.","<b>1. Evaluación:</b> identificar los activos críticos y analizar el impacto de su pérdida o deterioro. <b>2. Planificación:</b> documentar y validar el plan, con los miembros que se verían afectados. <b>3. Pruebas:</b> simular un entorno de prueba para comprobar la viabilidad. <b>4. Ejecución:</b> poner el plan en marcha para asegurar la continuidad. <b>5. Recuperación:</b> restablecer el sistema para que siga funcionando como si nada hubiera pasado."],
+["¿Qué es una auditoría de seguridad? Diferencia entre interna y externa e indica cuál es mejor y por qué.","Es una <b>evaluación sistemática</b> sobre las políticas, protocolos, planes de contención y dispositivos que conforman la red de la entidad. La <b>interna</b> la hace la propia empresa; la <b>externa</b> se contrata fuera. Por norma general las <b>externas son más completas</b>, por su independencia y objetividad, y además pueden emitir un <b>certificado</b> de cumplimiento."],
+["Explica por qué un CPD debe estar en una sala independiente y qué condiciones ambientales necesita.","Porque los equipos <b>hacen mucho ruido y desprenden mucho calor</b>, así que se sitúa lejos de los puestos de usuario. Necesita una temperatura interior de <span class='n'>17-19 °C</span> con refrigeración muy potente, funciona <span class='n'>24 h</span>, debe estar reforzado arquitectónicamente (soporta mucho peso), preferentemente en plantas bajas y evitando sótanos, sin material inflamable alrededor, y con un <b>sistema anexo de copias de seguridad</b>."],
+["¿Qué es un centro de respaldo y qué tipos existen?","Es una <b>réplica casi exacta del CPD</b>, normalmente <b>alejada del original</b>, para recuperar el sistema rápidamente ante un desastre; se usa sobre todo cuando la empresa no puede permitirse tener los servidores inactivos. Tipos: <b>réplicas exactas</b>, <b>réplicas parciales</b> y <b>acuerdo mutuo</b> entre dos empresas que se respaldan la una a la otra."],
+["Explica las 3 fases del control de acceso (IAA) e indica en cuál actúan las ACL.","<b>Identificación:</b> ¿quién dices ser? (usuario). <b>Autenticación:</b> demuéstralo (contraseña, tarjeta, huella). <b>Autorización:</b> ¿qué puedes hacer? Las <b>ACL actúan en la autorización</b>."],
+["¿Qué es una ACL y qué es una ACE? ¿En qué se diferencia de una lista de capacidades?","Una <b>ACL</b> es la lista asociada a un <b>objeto</b> que dice quién puede hacer qué con él (organización por columnas de la matriz). Cada línea es una <b>ACE</b> (<i>Access Control Entry</i>): <b>sujeto + permiso + permitir o denegar</b>. Una <b>lista de capacidades</b> se organiza por <b>sujeto</b> (por filas): cada usuario guarda lo que puede hacer. La ACL facilita saber y revocar quién accede a un recurso; las capacidades facilitan saber todo lo que puede hacer un usuario."],
+["Enumera los principios que debe cumplir cualquier ACL.","<span class='si'>Mínimo privilegio</span> (solo los permisos imprescindibles), <b>necesidad de saber</b> (solo la información necesaria para la tarea), <b>denegar por defecto</b> (lo no permitido explícitamente está prohibido), <b>segregación de funciones</b> (quien pide no aprueba), <b>permisos a grupos, no a personas</b> y <span class='si'>trazabilidad</span> (cuentas personales e intransferibles, accesos registrados)."],
+["Compara los modelos DAC, MAC, RBAC y ABAC indicando quién decide en cada uno.","<b>DAC:</b> decide el <b>propietario</b> del recurso; flexible pero depende del criterio de cada usuario (Windows, Linux, nube). <b>MAC:</b> decide el <b>sistema</b> según etiquetas de clasificación y habilitación; ni el propietario puede saltárselo, muy seguro pero rígido (defensa, SELinux). <b>RBAC:</b> decide el <b>administrador</b> asignando permisos a <b>roles</b>; el más usado en empresas (ERP, Active Directory). <b>ABAC:</b> deciden <b>reglas sobre atributos</b> del usuario, el recurso y el contexto (hora, ubicación, dispositivo); muy dinámico pero complejo de auditar."],
+["¿Qué es la máscara en una ACL POSIX y a quién afecta?","Es el <b>límite máximo de permisos</b> para los usuarios y grupos añadidos a la ACL. El permiso efectivo es el <b>permiso asignado AND la máscara</b>. Afecta a los <b>usuarios nombrados, al grupo propietario y a los grupos nombrados</b>, pero <b>no</b> al <b>propietario</b> del archivo ni a <b>“otros”</b>."],
+["Explica el orden de evaluación de permisos en NTFS y qué ocurre con una carpeta compartida por red.","Orden de más a menos prioridad: <b>1) denegar explícito, 2) permitir explícito, 3) denegar heredado, 4) permitir heredado</b>. En una carpeta compartida por red se <b>combinan</b> los permisos de <b>recurso compartido</b> y los <b>NTFS</b> y <b>gana el más restrictivo</b>. Si el acceso es <b>local</b> (sentado en el servidor), el permiso de recurso compartido <span class='no'>no se aplica</span>."],
+["Enuncia las reglas de oro de una ACL de red y explica por qué importa el orden.","<span class='n'>1)</span> Se evalúan en orden, de arriba abajo. <span class='n'>2)</span> Se aplica la <b>primera regla que coincide</b> y se deja de mirar. <span class='n'>3)</span> Al final hay un <b>denegar todo implícito</b>. <span class='n'>4)</span> Las reglas <b>más específicas van antes</b> que las generales.<br>El orden importa porque, al aplicarse solo la primera coincidencia, una regla general que deniegue colocada antes <b>anula</b> una regla específica posterior que permitiría el tráfico: esa regla nunca se llega a evaluar."],
+["Nombra cuatro errores típicos en la gestión de permisos y di qué principio incumple cada uno.","<b>Permisos a Todos/Everyone</b> “para que funcione” → mínimo privilegio y denegar por defecto. <b>Cuentas compartidas</b> (la cuenta admin común) → trazabilidad. <b>Acumulación de privilegios</b> al cambiar de puesto → mínimo privilegio. <b>Bajas que no se revocan</b> (cuentas zombi) → revocación el mismo día. También: permisos directos a cada usuario → permisos a grupos; revisar solo tras un incidente → revisión periódica."],
+["¿Por qué <code>Valencia2026!</code> es una mala contraseña aunque tenga mayúscula, número y símbolo?","Porque sigue un <b>patrón totalmente previsible</b>: palabra de diccionario (topónimo) + año + símbolo final. Los ataques <b>híbridos o por reglas</b> prueban exactamente esas variaciones sobre listas de palabras, así que su entropía real es muchísimo menor de lo que sugiere su aspecto. Cumple las reglas de composición pero no aporta seguridad: lo que importa es la <span class='si'>longitud</span> y que sea <b>impredecible</b>, como una frase de contraseña larga."],
+["¿Qué es la sal, para qué sirve y qué ataque evita?","Es un <b>valor aleatorio distinto para cada usuario</b> que se mezcla con la contraseña antes de calcular el hash. Así <b>dos contraseñas iguales dan hashes distintos</b>, por lo que no se ve qué usuarios comparten contraseña y, sobre todo, <b>las tablas rainbow dejan de servir</b>, ya que estarían precalculadas para contraseñas sin sal."],
+["Da dos razones por las que una empresa necesita una política de contraseñas por escrito.","<span class='n'>1)</span> Las <b>credenciales robadas o débiles</b> son una de las principales vías de entrada en los incidentes; sin política cada persona hace lo que quiere y la empresa queda expuesta a robo de datos, ransomware, fraude y suplantación. <span class='n'>2)</span> Una política permite fijar <b>mínimos obligatorios</b>, <b>implantarlos técnicamente</b> y <b>formar</b> al personal, además de poder exigir su cumplimiento y responder ante la <b>AEPD</b> si hay una brecha."],
+["Resume los cambios principales que introduce el NIST SP 800-63B-4 (2025) frente a “lo de toda la vida”.","<b>Longitud:</b> mínimo <span class='n'>15</span> caracteres si es el único factor y <span class='n'>8</span> con MFA; permitir al menos <span class='n'>64</span>, incluidos espacios. <b>Fuera</b> las reglas de composición obligatorias, los cambios periódicos (solo ante indicios de compromiso) y las pistas y preguntas de seguridad (prohibidas). <span class='si'>Permitir</span> gestores de contraseñas y pegar. <b>Añadir</b> comprobación contra <b>lista negra</b>, <b>limitación de intentos fallidos</b> y almacenamiento con <span class='si'>hash lento + sal</span>."],
+["Explica qué es el MFA, los tres tipos de factores y ordena los métodos de más débil a más fuerte.","MFA es combinar <b>factores de tipos distintos</b>: algo que <b>sabes</b> (contraseña, PIN), algo que <b>tienes</b> (móvil, tarjeta, llave FIDO2) y algo que <b>eres</b> (huella, cara). De más débil a más fuerte: <b>SMS &lt; app con código TOTP &lt; notificación con número &lt; llave FIDO2 o passkey</b>."],
+["Explica las tres funciones de un SAI y nombra sus componentes principales.","<b>Funciones:</b> 1) <b>mantener la alimentación</b> durante un corte un tiempo limitado (autonomía); 2) <b>filtrar y estabilizar</b> la tensión (picos, subidas, bajadas y ruido); 3) <b>avisar</b> y permitir un <b>apagado ordenado</b>. <b>Componentes:</b> rectificador o cargador (carga las baterías), baterías (VRLA o litio), inversor (convierte continua en alterna de 230 V), bypass (alimenta desde la red si el SAI falla o está en mantenimiento) y comunicación (USB, serie o tarjeta de red SNMP). Un SAI <span class='no'>no es un generador</span>: busca ganar minutos, no horas."],
+["Compara los tres tipos de SAI indicando conmutación, protección y uso típico.","<b>Off-line (VFD):</b> los equipos van a la red y conmuta a batería al fallar; <span class='n'>2-10 ms</span>; protege de <b>cortes y picos</b>; onda escalonada o pseudosenoidal; precio bajo; PC de oficina y router doméstico. <b>Line-interactive (VI):</b> igual pero con <b>AVR</b> que regula la tensión <b>sin gastar batería</b>; <span class='n'>2-4 ms</span>; añade <b>subidas y bajadas</b>; precio medio; oficinas pequeñas y servidores. <b>On-line doble conversión (VFI):</b> los equipos van <b>siempre por el inversor</b>; conmutación <span class='si'>cero</span>; protege de <b>todo, incluida la frecuencia</b>; <span class='si'>senoidal pura</span>; precio alto; <b>CPD y equipos críticos 24/7</b>."],
+["Diferencia VA y W y explica qué es el factor de potencia.","<b>VA</b> (voltamperios) es la potencia <b>aparente</b> = tensión × intensidad. <b>W</b> (vatios) es la potencia <b>real</b> que consumen los equipos. Se relacionan por el <b>factor de potencia</b>: <b>W = VA × FP</b>, que en los SAI actuales está entre <span class='n'>0,6 y 1</span>. Al dimensionar hay que <span class='si'>cumplir los dos límites</span>: ni superar los VA ni los W del SAI."],
+["Describe los pasos del dimensionado de un SAI.","<span class='n'>1)</span> <b>Inventario</b> de los equipos que irán conectados y su consumo en W. <span class='n'>2)</span> <b>Suma</b> de consumos = carga total. <span class='n'>3)</span> <b>Margen</b>: que trabaje como máximo al <span class='n'>70-80 %</span> → potencia mínima = carga ÷ 0,75. <span class='n'>4)</span> <b>Autonomía necesaria</b> para el apagado ordenado (o hasta que arranque el generador) más margen. <span class='n'>5)</span> <b>Comprobar las tablas del fabricante</b> para la autonomía real con esa carga. <span class='n'>6)</span> <b>Elegir</b> tipo, forma de onda, número y tipo de tomas, comunicación (USB o red) y formato (torre o rack)."],
+["¿Qué equipos deben ir en las tomas con batería del SAI y cuáles no? Justifícalo.","<b>Sí:</b> servidores, NAS y cabinas de almacenamiento; electrónica de red troncal (router, cortafuegos, switches principales, ONT); equipos de negocio críticos (TPV, centralita, grabador de cámaras, control de accesos); el monitor del servidor solo si hace falta para el apagado. <b>No:</b> <b>impresoras láser</b> (el fusor tiene picos de consumo muy altos), calefactores, aire acondicionado, frigoríficos, cafeteras y motores, y <b>regletas encadenadas</b> detrás del SAI. Para lo no crítico se usan las tomas de <b>solo protección contra picos</b>."],
+["Describe la secuencia de un apagado ordenado ante un corte eléctrico.","<span class='n'>1)</span> Se va la corriente: el SAI pasa a <b>batería</b> y <b>avisa</b> (alarma sonora, correo, registro). <span class='n'>2)</span> Si la corriente vuelve pronto, <span class='no'>no se hace nada</span>. <span class='n'>3)</span> Si no vuelve en <b>X minutos</b> o la batería baja del <b>N %</b>, empieza el apagado: <b>máquinas virtuales → servidores de aplicaciones → bases de datos → NAS</b>. <span class='n'>4)</span> Finalmente <b>el SAI se apaga</b> para no descargar del todo las baterías. <span class='n'>5)</span> Al volver la corriente, <b>recarga</b> y <b>arranque automático</b> en el orden correcto. El software que lo gestiona puede ser <b>NUT, apcupsd o PowerChute</b>."],
+["Enumera las pruebas de verificación de un SAI con su frecuencia orientativa.","<b>Revisión visual y del panel</b> (alarmas, carga, batería, temperatura): semanal o mensual. <b>Autotest</b>: mensual y automático. <b>Revisión del registro de eventos</b>: mensual. <b>Prueba de corte simulado</b>: <b>semestral</b>. <b>Calibración de autonomía</b>: anual. <b>Prueba del apagado ordenado</b>: anual o tras cambios. <b>Sustitución de baterías</b>: las VRLA duran <span class='n'>3-5 años</span>, según fecha y estado. Todo se anota en un <b>registro de mantenimiento</b>."],
+["¿Qué propiedades debe tener una buena característica biométrica?","<b>Universalidad</b> (la tienen todas las personas), <b>unicidad</b> (es distinta en cada una), <b>permanencia</b> (se mantiene en el tiempo), <b>mensurabilidad</b> (se puede capturar y medir fácilmente), <b>rendimiento</b> (rápida y precisa), <b>aceptabilidad</b> (la gente acepta usarla) y <b>resistencia al fraude</b> (difícil de falsificar). Ninguna técnica destaca en todas: elegir es <b>buscar el equilibrio</b> para cada uso."],
+["Explica cómo funciona un sistema biométrico, distinguiendo registro y uso.","<b>Registro (enrolamiento), una sola vez:</b> captura con el sensor → extracción de características → generación de la <b>plantilla</b> → almacenamiento <b>cifrado</b>. <b>Uso, en cada acceso:</b> captura → extracción → <b>comparación</b> con la plantilla y decisión según si la <b>puntuación de parecido alcanza el umbral</b>. No se guarda la foto ni la huella, sino una plantilla de <b>datos numéricos</b>, y la comparación <span class='no'>nunca es exacta</span>."],
+["Diferencia verificación 1:1 e identificación 1:N e indica cuál es preferible y por qué.","<span class='si'>Verificación 1:1</span> (“¿eres quien dices ser?”): la persona se identifica antes con tarjeta o usuario y se compara solo con <b>su</b> plantilla; es <span class='si'>más rápida y precisa</span> y la plantilla puede ir en la tarjeta o el dispositivo (<i>match-on-card</i>). <b>Identificación 1:N</b> (“¿quién eres?”): no hace falta identificarse y se compara con <b>todas</b> las plantillas; es más cómoda pero da <span class='no'>más errores</span> y exige una <b>base de datos centralizada</b>. Es preferible la <b>1:1 con la plantilla en poder del usuario</b>, por ser la <span class='si'>menos invasiva</span> para la privacidad."],
+["Define FAR, FRR, EER y FTE, e indica qué problema representa cada uno.","<b>FAR</b> (False Acceptance Rate): tasa de falsa aceptación, <span class='no'>entra quien no debería</span> → problema de <b>seguridad</b>; FAR = falsas aceptaciones ÷ intentos de impostores. <b>FRR</b> (False Rejection Rate): falso rechazo, <span class='no'>no entra quien sí debería</span> → problema de <b>comodidad</b>; FRR = falsos rechazos ÷ intentos legítimos. <b>EER</b> (Equal Error Rate): punto donde <b>FAR = FRR</b>, sirve para <b>comparar sistemas</b> (más bajo, mejor). <b>FTE</b> (Failure To Enrol): personas que <span class='no'>no se pueden registrar</span>, obliga a un <span class='si'>método alternativo</span>."],
+["Explica la relación entre el umbral, el FAR y el FRR, y cómo se elige.","El umbral es la <b>puntuación mínima de parecido</b> para aceptar. Si se <b>sube</b>, el sistema es más exigente: <b>entran menos impostores (FAR ↓)</b> pero <b>se rechaza más a los legítimos (FRR ↑)</b>. Si se <b>baja</b>, es más cómodo (<b>FRR ↓</b>) pero menos seguro (<b>FAR ↑</b>). Se elige <b>según el uso y el riesgo de la zona</b>: umbral <b>alto</b> donde lo grave es que entre un impostor (CPD de un banco) y <b>bajo o medio</b> donde lo grave es la incomodidad (comedor, fichaje)."],
+["Indica tres ventajas y tres riesgos de los sistemas biométricos, con la medida que corrige cada riesgo.","<b>Ventajas:</b> no se olvida, no se pierde y no se presta; mejor <span class='si'>trazabilidad</span> al estar vinculada a la persona; comodidad y rapidez (además evita que un compañero fiche por otro y refuerza la MFA). <b>Riesgos y medidas:</b> <span class='no'>no se puede cambiar</span> → plantillas cifradas y revocables, nunca imágenes; <b>suplantación</b> con réplicas, fotos o máscaras → <span class='si'>detección de vida</span>; <b>exclusión</b> de quien no puede registrarse (FTE) → <span class='si'>método alternativo no biométrico</span>. También: falsos rechazos → umbral adecuado y segundo intento; privacidad → verificación 1:1 y plantilla en el dispositivo; coste → usarla solo donde está justificada."],
+["¿Qué dice la normativa sobre el uso de biometría para el control de presencia de los trabajadores?","Los datos biométricos que identifican de forma única son <b>categoría especial</b> (<b>RGPD art. 9</b>): su tratamiento está <span class='no'>prohibido salvo excepciones</span> y en general exige una <b>evaluación de impacto (EIPD)</b> que demuestre que son <b>necesarios y proporcionados</b>. Según la <b>guía de la AEPD de noviembre de 2023</b>, el <b>consentimiento del trabajador no suele ser válido</b> por el desequilibrio con la empresa, y si existe una <b>alternativa menos invasiva</b> (tarjeta, código) la biometría deja de ser necesaria; para <b>fichar</b>, en general, <span class='no'>no está justificada</span>. Además, el <b>Reglamento europeo de IA</b> prohíbe el <b>reconocimiento de emociones</b> en el trabajo y en los centros educativos."],
+["Enumera las buenas prácticas al implantar un sistema biométrico.","<span class='n'>1)</span> Justificar la necesidad (¿hay alternativa menos invasiva?) → <b>EIPD</b>. <span class='n'>2)</span> Preferir <span class='si'>verificación 1:1</span> a identificación 1:N. <span class='n'>3)</span> Guardar <b>plantillas cifradas, nunca imágenes</b>, mejor en la tarjeta o el dispositivo que en un servidor central. <span class='n'>4)</span> Exigir <span class='si'>detección de vida</span>. <span class='n'>5)</span> <b>Combinar con otro factor</b> en zonas críticas. <span class='n'>6)</span> Ofrecer <b>siempre un método alternativo</b>. <span class='n'>7)</span> <b>Informar</b> a las personas y <b>borrar</b> las plantillas en las bajas. <span class='n'>8)</span> Ajustar el <b>umbral</b> al nivel de riesgo de cada zona."]
+];
+
+/* p = prácticos [enunciado(html), solución(html)] */
+const PRACTICOS = [
+["Clasifica según los <b>dos criterios</b>, indica el objeto protegido y los objetivos CIDAN:<br>a) montar un sistema <b>RAID 1</b> en un servidor de archivos · b) instalar un <b>SAI</b> en una máquina clave de un aula · c) un <b>lector de huellas</b> para encender un ordenador","<div class=\"tw\"><table><thead><tr><th>Supuesto</th><th>Tipo</th><th>Objeto protegido</th><th>CIDAN</th></tr></thead><tbody><tr><td>a) RAID 1</td><td><b>Física, pasiva</b></td><td>Datos/archivos y almacenamiento</td><td><b>I, D</b></td></tr><tr><td>b) SAI</td><td><b>Física, pasiva</b></td><td>Hardware y datos en ejecución</td><td><b>D, I</b></td></tr><tr><td>c) Lector de huellas</td><td><b>Lógica, activa</b></td><td>Acceso al equipo y a sus datos</td><td><b>C, A</b></td></tr></tbody></table></div>"],
+["Clasifica según los <b>dos criterios</b>, objeto protegido y CIDAN:<br>d) <b>firmar digitalmente</b> una solicitud de beca · e) generar un <b>SHA-1</b> de un archivo · f) instalar un <b>antivirus</b> en un equipo recién comprado · g) examinar con <b>SpyBot S&amp;D</b> un equipo con mal rendimiento","<div class=\"tw\"><table><thead><tr><th>Supuesto</th><th>Tipo</th><th>Objeto protegido</th><th>CIDAN</th></tr></thead><tbody><tr><td>d) Firma digital</td><td><b>Lógica, activa</b></td><td>Documento y su autoría</td><td><b>I, A, N</b></td></tr><tr><td>e) SHA-1</td><td><b>Lógica, pasiva</b></td><td>Integridad del archivo</td><td><b>I</b></td></tr><tr><td>f) Antivirus</td><td><b>Lógica, activa</b></td><td>Sistema, programas y datos</td><td><b>C, I, D</b></td></tr><tr><td>g) SpyBot S&amp;D</td><td><b>Lógica, activa</b></td><td>Sistema, programas y datos</td><td><b>I, D</b></td></tr></tbody></table></div><p>Recuerda el razonamiento: si <b>previene o actúa en la interacción</b> → activa; si solo <b>permite recuperar o comprobar después</b> → pasiva.</p>"],
+["Elabora un <b>plan de contingencia</b> para una gestoría de 5 personas cuyo servidor de archivos es crítico. Incluye las 5 fases.","<b>1. Evaluación.</b> Activos críticos: servidor de archivos (declaraciones y nóminas de clientes), NAS de copias, router y cortafuegos, centralita. Impacto: sin el servidor la gestoría no puede trabajar; la pérdida de las declaraciones implicaría incumplimiento de plazos ante Hacienda, pérdida económica, daño reputacional y notificación a la <b>AEPD</b> si hay datos personales.<br><b>2. Planificación.</b> Documentar y validar el plan con el personal afectado: copias diarias en NAS y semanales fuera de la oficina (regla 3-2-1), responsable y suplente, teléfonos de proveedor y de la compañía eléctrica, tiempo objetivo de recuperación (p. ej. 4 h), SAI para el apagado ordenado y portátil de reserva.<br><b>3. Pruebas.</b> Simular en un entorno de prueba: restaurar una copia en un equipo limpio y comprobar que los datos están completos; prueba de corte simulado del SAI; cronometrar la recuperación.<br><b>4. Ejecución.</b> Ante el fallo: avisar al responsable, pasar a trabajar con la copia o el equipo de reserva, aislar el equipo afectado si hay malware, registrar todo lo ocurrido.<br><b>5. Recuperación.</b> Reparar o sustituir el hardware, reinstalar el software, restaurar los datos de la última copia válida, verificar la integridad, volver a la operación normal y <b>revisar el plan</b> con las lecciones aprendidas."],
+["Interpreta la ACL POSIX. ¿Qué puede hacer <b>realmente</b> cada uno?<pre># file: nominas\n# owner: ana\n# group: rrhh\nuser::rwx\nuser:pedro:rwx\ngroup::r-x\ngroup:becarios:rw-\nmask::r-x\nother::---</pre>1) Ana · 2) Pedro · 3) un miembro de <i>becarios</i> · 4) Luis, que no está en ningún grupo","<b>1) Ana</b> es la <b>propietaria</b>: la máscara <b>no le afecta</b> → <b>rwx</b> (todo: leer, escribir y entrar/ejecutar).<br><b>2) Pedro</b> tiene <code>rwx</code> asignado, pero la máscara es <code>r-x</code> → efectivo <b>r-x</b>: puede <b>leer y entrar, pero no escribir</b>.<br><b>3) Becarios</b> tiene <code>rw-</code> y la máscara <code>r-x</code> → <code>rw- AND r-x</code> = <b>r--</b>: solo <b>leer</b> (ni escribir ni entrar, si fuese directorio).<br><b>4) Luis</b> cae en <code>other::---</code>, que <b>no pasa por la máscara</b> → <b>ningún permiso</b>.<br><i>Clave: permiso efectivo = asignado AND máscara, salvo para el propietario y para “otros”.</i>"],
+["Carpeta <code>\\\\SERVIDOR\\Proyectos</code>:<br>· Recurso compartido: <b>Todos → Leer</b><br>· NTFS: <b>Ventas → Modificar</b> (heredado)<br>· NTFS: <b>Marta</b> (de Ventas) → <b>Denegar escritura</b> (explícito)<br>1) ¿Puede Marta leer? ¿Y escribir? · 2) Juan, de Ventas, entra <b>por red</b>: ¿puede modificar? · 3) ¿Y si Juan se sienta en el propio servidor?","<b>1) Marta:</b> <b>sí puede leer</b> (tiene Modificar heredado por Ventas, y el compartido le da Leer). <b>No puede escribir</b>: el <b>denegar explícito</b> es lo primero en el orden de evaluación y gana sobre el permitir heredado.<br><b>2) Juan por red:</b> <b>no puede modificar</b>. NTFS le da Modificar, pero el <b>recurso compartido</b> solo da <b>Leer</b> y al combinarse <b>gana el más restrictivo</b> → solo lectura.<br><b>3) Juan en local:</b> <b>sí puede modificar</b>. En un acceso local <span class='no'>no se aplica</span> el permiso de recurso compartido, solo el NTFS, que le concede Modificar."],
+["Con esta ACL de red, di si pasa cada paquete y <b>por qué regla</b>:<pre>10  permit tcp 192.168.10.0/24 any eq 443\n20  deny  tcp any host 192.168.20.5 eq 22\n30  permit tcp host 192.168.10.50 host 192.168.20.5 eq 22\n40  permit icmp any any\nXX  implicit deny any</pre>a) 192.168.10.7 → 8.8.8.8 TCP 443 · b) 192.168.10.50 → 192.168.20.5 TCP 22 · c) 192.168.30.4 → 192.168.20.5 ICMP · d) 192.168.10.7 → 192.168.20.5 TCP 80 · e) 192.168.30.4 → 142.250.1.1 TCP 443","<b>a) PASA</b> por la <b>regla 10</b>: origen de la red 192.168.10.0/24 y puerto 443.<br><b>b) NO PASA</b>: coincide primero con la <b>regla 20</b> (deny tcp any → host 192.168.20.5 eq 22) y, al aplicarse la primera coincidencia, la regla 30 <span class='no'>nunca se evalúa</span>.<br><b>c) PASA</b> por la <b>regla 40</b> (permit icmp any any). Las reglas 10-30 son TCP, así que no coinciden.<br><b>d) NO PASA</b>: no coincide con ninguna regla (es TCP 80 hacia 192.168.20.5) → lo descarta el <b>deny implícito</b>.<br><b>e) NO PASA</b>: el origen no está en 192.168.10.0/24, así que la regla 10 no aplica y ninguna otra coincide → <b>deny implícito</b>.<br><b>Problema del administrador (192.168.10.50) y arreglo:</b> no puede entrar por SSH porque la <b>regla 20 deniega antes</b>. Hay que colocar la regla <b>más específica delante</b>: renumerar la 30 como, por ejemplo, <span class='n'>15</span>, de modo que se evalúe antes del deny general."],
+["Para cada caso di qué <b>modelo de control de acceso</b> es (DAC, MAC, RBAC o ABAC):<br>1) Compartes un documento de Drive con dos compañeros · 2) Un documento SECRETO no puede leerlo alguien con habilitación CONFIDENCIAL aunque su autor quiera · 3) Al contratar un comercial se le asigna el perfil “Comercial” en el ERP · 4) La VPN solo deja conectarse en horario laboral, desde portátiles corporativos y desde España · 5) Haces <code>chmod 640</code> a un fichero de tu carpeta · 6) Todo el personal de caja de un banco tiene los mismos permisos","<b>1) DAC</b> — decide el propietario del recurso.<br><b>2) MAC</b> — decide el sistema por etiquetas de clasificación y habilitación; ni el propietario puede saltárselo.<br><b>3) RBAC</b> — se le asigna un <b>rol</b>.<br><b>4) ABAC</b> — atributos de contexto: hora, dispositivo y ubicación.<br><b>5) DAC</b> — el propietario cambia los permisos de su fichero.<br><b>6) RBAC</b> — un rol (“personal de caja”) con los mismos permisos para todos."],
+["<b>Caza el error.</b> Di qué principio incumple cada punto de esta política y redáctalo bien:<br>1) “Todos los empleados tendrán lectura y escritura en todas las carpetas del servidor” · 2) “Los permisos se asignarán directamente a cada usuario según lo pida” · 3) “Los técnicos usarán la cuenta común <code>admin</code>” · 4) “Cuando un empleado deje la empresa, su cuenta se desactivará al cierre del trimestre” · 5) “Los permisos se revisarán cuando se produzca un incidente” · 6) “Todo lo que no esté expresamente prohibido está permitido” · 7) “El responsable de compras da de alta a los proveedores y aprueba sus pagos”","<span class='n'>1)</span> Incumple <span class='si'>mínimo privilegio</span> y <b>necesidad de saber</b> → “Cada usuario tendrá únicamente los permisos imprescindibles para su puesto, asignados por grupos.”<br><span class='n'>2)</span> Incumple <b>permisos a grupos, no a personas</b> → “Los permisos se asignarán a roles o grupos, y los usuarios se incluirán en ellos; toda solicitud la aprueba el responsable del recurso.”<br><span class='n'>3)</span> Incumple la <span class='si'>trazabilidad</span> (cuentas compartidas) → “Cada técnico usará una cuenta personal e intransferible con privilegios administrativos nominales, y los accesos quedarán registrados.”<br><span class='n'>4)</span> Incumple la <b>revocación inmediata</b> → “La cuenta se desactivará <b>el mismo día</b> de la baja.”<br><span class='n'>5)</span> Incumple la <b>revisión periódica</b> → “Los permisos se revisarán al menos semestralmente y en cada cambio de puesto, además de tras cualquier incidente.”<br><span class='n'>6)</span> Incumple <b>denegar por defecto</b> → “Todo lo que no esté expresamente permitido está prohibido.”<br><span class='n'>7)</span> Incumple la <b>segregación de funciones</b> → “Quien da de alta a un proveedor no podrá aprobar sus pagos; la aprobación corresponderá a una persona distinta.”"],
+["Ordena de <b>más a menos segura</b> y justifica el criterio:<br>A <code>Valencia2026!</code> · B <code>Xk9#qL</code> · C <code>naranja-tranvia-lapiz-otoño-gris</code> · D <code>P@ssw0rd</code> · E <code>123456</code> · F <code>MiPerroTobyNacioEn2019</code>","<b>Orden: C &gt; F &gt; B &gt; A &gt; D &gt; E.</b><br><b>C</b> (32 caracteres, 5 palabras poco relacionadas) es una <b>frase de contraseña</b>: la longitud le da muchísima entropía. <b>F</b> es larga (22 caracteres) pero su contenido es <b>personal y adivinable</b> por ingeniería social o redes sociales, así que va por detrás. <b>B</b> es aleatoria pero <b>solo 6 caracteres</b>: un ataque offline la rompe en segundos. <b>A</b> cumple las reglas de composición pero sigue el <b>patrón previsible</b> palabra + año + símbolo, que los ataques híbridos prueban. <b>D</b> es una de las contraseñas más conocidas, con <b>leetspeak</b> trivial (<code>a→@</code>, <code>o→0</code>), y está en todas las listas negras. <b>E</b> es la contraseña más usada del mundo: instantánea.<br><b>Criterio:</b> manda la <span class='si'>longitud</span> y la <b>imprevisibilidad</b>, no la presencia de símbolos."],
+["Identifica el <b>ataque</b> de cada caso:<br>1) Un atacante prueba <code>Verano2026!</code> en las 500 cuentas de correo de una universidad · 2) Se filtra una tienda online y al día siguiente entran en tu Instagram con los mismos datos · 3) Un programa prueba <code>aaaa</code>, <code>aaab</code>, <code>aaac</code>… · 4) Recibes un SMS de “tu banco” con un enlace para “verificar tu cuenta” · 5) Con la lista de 10 millones de contraseñas más usadas y añadiendo años y símbolos se descubre <code>Futbol1998$</code> · 6) En la cafetería alguien graba con el móvil cómo teclas el PIN","<b>1) Password spraying</b> — pocas contraseñas comunes en muchas cuentas, para no disparar los bloqueos.<br><b>2) Credential stuffing</b> — credenciales filtradas de otro sitio reutilizadas. Defensa: no reutilizar + MFA.<br><b>3) Fuerza bruta</b> — todas las combinaciones posibles. Defensa: longitud.<br><b>4) Phishing</b> (por SMS, <i>smishing</i>) — ingeniería social para que entregues la credencial.<br><b>5) Ataque de diccionario con reglas o híbrido</b> — diccionario + variaciones previsibles.<br><b>6) Shoulder surfing</b> — observar o grabar al usuario teclear."],
+["Indica si es <b>mito (M)</b> o <b>realidad (R)</b> y justifica en una línea:<br>1) Cambiar la contraseña cada mes es más seguro · 2) <code>Tr0mp3t@</code> es más segura que <code>trompeta azul en la playa</code> · 3) Un gestor pone todos los huevos en la misma cesta, es peor · 4) Con MFA una contraseña robada ya no basta · 5) Las preguntas de seguridad son una buena forma de recuperar la cuenta · 6) Si la empresa guarda con MD5, da igual lo largas que sean · 7) La contraseña de fábrica del router es segura porque es aleatoria · 8) Bloquear la cuenta tras unos intentos fallidos frena los ataques online","<b>1) M</b> — el NIST 2025 lo descarta: lleva a patrones previsibles (<code>Verano2026! → Otoño2026!</code>); solo se cambia ante indicios de compromiso.<br><b>2) M</b> — manda la longitud: la frase tiene muchísima más entropía; <code>Tr0mp3t@</code> es diccionario + leetspeak trivial.<br><b>3) M</b> — permite una contraseña única y larga por servicio; el riesgo se concentra pero se protege con una maestra larga + MFA, y el balance es claramente favorable.<br><b>4) R</b> — el atacante necesitaría también el segundo factor (matiz: el MFA por SMS o por notificación es vulnerable a phishing en tiempo real y a <i>fatiga de MFA</i>; FIDO2 o passkey resisten).<br><b>5) M</b> — están <b>prohibidas</b> por el NIST: las respuestas son públicas o adivinables.<br><b>6) M, con matiz</b> — MD5 es rapidísimo y no sirve, pero una contraseña <b>suficientemente larga y aleatoria</b> sigue siendo inviable por fuerza bruta; lo que sí es cierto es que las cortas o previsibles caen enseguida y que el almacenamiento es inaceptable.<br><b>7) M</b> — muchas son comunes por modelo, están en listas publicadas y a veces se derivan del número de serie o la MAC; hay que cambiarla al instalar.<br><b>8) R</b> — limita los ataques <b>online</b>; no afecta a los <b>offline</b> con los hashes robados, y hay que ajustarlo para no facilitar una denegación de servicio."],
+["Identifica la <b>perturbación eléctrica</b> de cada caso:<br>1) Las luces parpadean un instante y el ordenador se reinicia · 2) Durante una tormenta se estropea la fuente del router · 3) Cada vez que arranca el compresor del aire acondicionado la tensión baja unos segundos · 4) En una nave rural el polímetro marca 250 V de forma continuada · 5) Junto a un taller con soldadores los equipos dan errores aleatorios · 6) Se va la luz en todo el polígono durante dos horas","<b>1) Microcorte</b> — interrupción de milisegundos; provoca reinicios inesperados.<br><b>2) Pico o transitorio</b> — subida muy breve y muy alta por el rayo; daña fuentes y placas.<br><b>3) Subtensión</b> — tensión por debajo de lo normal durante unos segundos.<br><b>4) Sobretensión sostenida</b> — por encima de lo normal (230 V nominales) de forma continuada; sobrecalentamiento y averías.<br><b>5) Ruido eléctrico</b> — interferencias de motores y maquinaria.<br><b>6) Corte</b> — falta total de tensión durante horas."],
+["¿Qué <b>tipo de SAI</b> elegirías y por qué?<br>1) El ordenador del mostrador de una tienda · 2) Oficina pequeña con servidor y NAS en zona con bajadas de tensión frecuentes · 3) Sala de servidores de un centro de control 24 h · 4) Nave rural con tensión inestable y generador diésel de respaldo · 5) Router y ONT de fibra de una vivienda · 6) Dos servidores nuevos con fuentes de PFC activo","<b>1) Off-line (VFD)</b> — un PC de mostrador solo necesita aguantar cortes y picos el tiempo de guardar y apagar; es la opción más barata.<br><b>2) Line-interactive (VI)</b> — su <b>AVR</b> corrige las bajadas de tensión <b>sin gastar batería</b>, que es justo el problema descrito.<br><b>3) On-line doble conversión (VFI)</b> — equipos críticos 24/7: conmutación <span class='si'>cero</span>, senoidal pura y protección total; idealmente con <b>redundancia N+1</b> y grupo electrógeno.<br><b>4) On-line (VFI)</b> — es el único que corrige la <b>variación de frecuencia</b>, habitual cuando alimenta un <b>generador diésel</b>, además de la tensión inestable.<br><b>5) Off-line (VFD)</b> — consumo bajísimo y solo hace falta cubrir cortes breves para no perder la conexión.<br><b>6) On-line (VFI)</b>, o como mínimo interactivo con <span class='si'>senoidal pura</span> — las fuentes con <b>PFC activo</b> pueden funcionar mal con onda escalonada."],
+["<b>Dimensiona el SAI</b> de la sala técnica de una gestoría. Equipos: servidor con PFC activo <span class='n'>320 W</span>, NAS de 4 discos <span class='n'>60 W</span>, switch de 24 puertos <span class='n'>30 W</span>, router + cortafuegos <span class='n'>25 W</span>, centralita IP <span class='n'>15 W</span>. El apagado ordenado tarda <span class='n'>8 minutos</span>. Indica potencia, tipo, autonomía y qué más tendrías en cuenta.","<b>1) Carga total:</b> 320 + 60 + 30 + 25 + 15 = <span class='n'>450 W</span>.<br><b>2) Margen del 70-80 %:</b> potencia mínima = 450 ÷ 0,75 = <span class='n'>600 W</span>.<br><b>3) Paso a VA:</b> con FP = 0,6 → 600 ÷ 0,6 = <span class='n'>1.000 VA</span>; con FP = 0,7 → ≈ 860 VA. Hay que <span class='si'>cumplir los dos límites</span>, así que conviene un SAI de al menos <span class='n'>1.000-1.500 VA / 600-900 W</span>. Un <span class='n'>1500 VA / 900 W</span> encaja bien: la carga de 450 W es el <span class='n'>50 %</span> de su capacidad, lo que deja margen de crecimiento y mejora la autonomía.<br><b>4) Autonomía:</b> necesitamos los <span class='n'>8 minutos</span> del apagado ordenado <b>más un margen</b> (10-15 min reales) para absorber microcortes y esperar a ver si vuelve la luz. Estimación con la fórmula: con 2 baterías de 12 V y 9 Ah (216 Wh) y η = 0,85 → 216 × 0,85 ÷ 450 ≈ <span class='n'>0,41 h ≈ 24 min</span>, suficiente. Pero esa cifra es <b>optimista</b> (<b>efecto Peukert</b>, edad y calor), así que <b>hay que confirmarla en las tablas de autonomía del fabricante</b> para 450 W.<br><b>5) Tipo y forma de onda:</b> el servidor tiene <b>PFC activo</b> → <span class='si'>senoidal pura</span>: <b>on-line (VFI)</b> o interactivo de gama alta con senoidal pura.<br><b>6) Otros requisitos:</b> comunicación <b>USB o tarjeta de red SNMP</b> para el apagado ordenado con NUT/apcupsd; número y tipo de tomas (IEC para rack) separando tomas con batería de las de solo protección; formato <b>rack</b> si hay armario; ubicación ventilada a <span class='n'>20-25 °C</span> y en la parte baja del rack; y <span class='no'>nada de impresoras láser</span> enchufadas."],
+["Un SAI tiene <b>2 baterías de 12 V y 7 Ah</b>, rendimiento del inversor <span class='n'>η = 0,9</span>, y alimenta una carga de <span class='n'>300 W</span>. Calcula la autonomía estimada y comenta el resultado.","<b>Energía de las baterías:</b> están en serie → 12 + 12 = <span class='n'>24 V</span>. Energía = 24 V × 7 Ah = <span class='n'>168 Wh</span>.<br><b>Autonomía:</b> t = (24 × 7 × 0,9) ÷ 300 = 151,2 ÷ 300 = <span class='n'>0,504 h ≈ 30 minutos</span>.<br><b>Comentario:</b> la cifra es <b>optimista</b>. Por el <b>efecto Peukert</b>, cuanto más rápido se descarga la batería menos energía entrega; además la capacidad <b>baja con la edad</b> (las VRLA duran 3-5 años) y <b>con el calor</b>. Hay que <b>comprobar la tabla de autonomía del fabricante</b> para 300 W y dejar margen sobre el tiempo que tarda el apagado ordenado."],
+["Un SAI es de <span class='n'>2000 VA / 1200 W</span>. a) ¿Cuál es su factor de potencia? b) ¿Puedo conectar equipos que suman <span class='n'>1.300 W</span>? c) ¿Y equipos que suman <span class='n'>900 W</span>, respetando el margen recomendado?","<b>a)</b> FP = W ÷ VA = 1200 ÷ 2000 = <span class='n'>0,6</span>.<br><b>b) No.</b> Aunque 1.300 W quepa en los 2000 VA aparentes, <b>supera el límite de 1200 W</b> y hay que <span class='si'>cumplir los dos límites</span> a la vez. El SAI se sobrecargaría.<br><b>c) Sí.</b> 900 W es el <span class='n'>75 %</span> de 1200 W, justo en el margen recomendado del <span class='n'>70-80 %</span>. En VA: 900 ÷ 0,6 = 1.500 VA, también el 75 % de 2000 VA. Queda margen para crecer y se alarga la vida del equipo."],
+["Clasifica cada equipo como <b>B</b> (toma con batería), <b>P</b> (solo protección contra picos) o <b>N</b> (no conectar al SAI): servidor · impresora láser · switch principal · cafetera · grabador de cámaras (NVR) · router de fibra · monitor de la recepción · lector de control de accesos · cargador de móviles · estufa eléctrica · TPV · centralita telefónica.","<b>B — con batería:</b> servidor, switch principal, grabador de cámaras (NVR), router de fibra, lector de control de accesos, TPV y centralita telefónica. Son críticos: si se apagan, se pierden datos o la empresa no puede trabajar.<br><b>P — solo protección:</b> monitor de la recepción y cargador de móviles. No son críticos, pero conviene protegerlos de picos.<br><b>N — no conectar:</b> <b>impresora láser</b> (el <b>fusor</b> tiene picos de consumo muy altos), <b>cafetera</b> y <b>estufa eléctrica</b> (cargas térmicas y motores que consumen muchísimo y agotarían la batería).<br><i>Nota: el monitor del servidor sí iría a batería si hace falta para el apagado.</i>"],
+["Interpreta la salida de <code>upsc</code>:<pre>battery.charge: 38\nbattery.charge.low: 20\nbattery.date: 2021/03/15\nbattery.runtime: 420\ninput.voltage: 0.0\noutput.voltage: 230.0\nups.load: 64\nups.status: OB DISCHRG\nups.temperature: 34\nups.test.result: Done and warning</pre>1) ¿Hay corriente en la red? ¿Cómo lo sabes? · 2) ¿Cuántos minutos de autonomía quedan? · 3) ¿Qué ocurrirá al llegar al 20 %? · 4) Señala tres datos preocupantes y qué harías.","<b>1) No hay corriente.</b> <code>input.voltage: 0.0</code> indica que no entra tensión de la red, y <code>ups.status: OB DISCHRG</code> significa <b>On Battery</b> y descargando. Aun así <code>output.voltage: 230.0</code>: el <b>inversor</b> sigue alimentando los equipos desde la batería.<br><span class='n'>2)</span> <code>battery.runtime: 420</code> está en <b>segundos</b> → 420 ÷ 60 = <span class='n'>7 minutos</span>.<br><span class='n'>3)</span> Al bajar al <span class='n'>20 %</span> (<code>battery.charge.low</code>) el software de gestión lanzará el <b>apagado ordenado</b> (máquinas virtuales → servidores de aplicaciones → bases de datos → NAS) y después el <b>SAI se apagará</b> para no descargar del todo las baterías.<br><b>4) Datos preocupantes:</b><br>· <b>Solo 7 minutos de autonomía con el 38 %</b> y la carga al 64 %: puede no dar tiempo al apagado ordenado completo → revisar el umbral de inicio del apagado (subirlo), reducir la carga conectada o ampliar baterías.<br>· <b><code>battery.date: 2021/03/15</code></b>: la batería tiene más de 4 años y las <b>VRLA duran 3-5</b> → <b>programar su sustitución</b> ya y hacer una calibración de autonomía.<br>· <b><code>ups.temperature: 34</code></b>: muy por encima de los <span class='n'>20-25 °C</span> recomendados; el calor acorta mucho la vida de las baterías → mejorar la <b>ventilación</b> de la sala y comprobar la ubicación del SAI.<br>· <b><code>ups.test.result: Done and warning</code></b>: el autotest avisa de un problema → revisar el registro de eventos y diagnosticar batería e inversor.<br><i>(Y ante todo: comprobar por qué falta la corriente y avisar al responsable.)</i>"],
+["Ordena los pasos de una <b>prueba de corte simulado</b> semestral:<br>A. Restablecer la alimentación y comprobar que el SAI recarga · B. Comprobar que el software de monitorización recibe el aviso · C. Avisar a los usuarios y programar la prueba fuera del horario de trabajo · D. Anotar los resultados en el registro de mantenimiento · E. Comprobar que hay copia de seguridad reciente · F. Desconectar la entrada del SAI · G. Revisar el estado previo: batería cargada, sin alarmas, carga conectada · H. Comprobar que los equipos siguen funcionando con batería","<b>Orden: C → E → G → F → H → B → A → D.</b><br><b>C</b> Avisar y programar fuera de horario (es una prueba con riesgo real).<br><b>E</b> Comprobar que hay <b>copia de seguridad reciente</b>: red de seguridad por si algo sale mal.<br><b>G</b> Revisar el estado previo: batería cargada, sin alarmas, carga conectada.<br><b>F</b> Desconectar la entrada del SAI o lanzar la prueba desde el software.<br><b>H</b> Comprobar que los equipos <b>siguen funcionando con batería</b>.<br><b>B</b> Comprobar que el software de monitorización <b>recibe el aviso</b>.<br><b>A</b> Restablecer la alimentación y comprobar que el SAI <b>recarga</b>.<br><b>D</b> <b>Anotar los resultados</b> en el registro de mantenimiento.<br><i>Lógica: preparar y proteger → provocar el corte → verificar durante → restablecer → documentar.</i>"],
+["Prueba de un lector de huella: <span class='n'>1.000</span> intentos de personas <b>no registradas</b> → <span class='n'>5</span> acceden. <span class='n'>2.000</span> intentos de personas <b>registradas</b> → <span class='n'>60</span> son rechazados. Calcula FAR y FRR e interpreta los resultados.","<b>FAR</b> = falsas aceptaciones ÷ intentos de impostores = 5 ÷ 1.000 = 0,005 = <span class='n'>0,5 %</span>.<br><b>FRR</b> = falsos rechazos ÷ intentos legítimos = 60 ÷ 2.000 = 0,03 = <span class='n'>3 %</span>.<br><b>Interpretación:</b> de cada 200 impostores, uno consigue entrar (problema de <b>seguridad</b>); y 3 de cada 100 accesos legítimos se rechazan (problema de <b>comodidad</b>). Como <b>FRR &gt; FAR</b>, el umbral está <b>por encima</b> del EER, es decir, del lado <b>exigente</b>: razonable para una zona de seguridad media-alta. Si fuese un CPD de un banco podríamos <b>subir</b> más el umbral (bajar el FAR aceptando más rechazos); si fuese un comedor, <b>bajarlo</b>."],
+["El mismo lector con tres umbrales:<div class=\"tw\"><table><thead><tr><th>Umbral</th><th>FAR</th><th>FRR</th></tr></thead><tbody><tr><td>Bajo</td><td>2 %</td><td>0,5 %</td></tr><tr><td>Medio</td><td>0,5 %</td><td>2 %</td></tr><tr><td>Alto</td><td>0,01 %</td><td>8 %</td></tr></tbody></table></div>1) ¿Qué umbral pondrías en el <b>CPD de un banco</b>, el <b>comedor</b> de la empresa y el <b>desbloqueo de un móvil</b>? · 2) Una empresa tiene <b>30 empleados</b> que pasan el lector <b>4 veces al día</b> con umbral <b>alto</b>: ¿cuántos falsos rechazos habrá al día? ¿Qué problema provoca? ¿Cómo lo resolverías?","<b>1) Elección de umbral</b><br>· <b>CPD de un banco → ALTO.</b> Lo grave es que entre un impostor; con FAR del 0,01 % se acepta un FRR del 8 % porque entran pocas personas y la seguridad manda. Además debe ir con <span class='si'>MFA</span> (tarjeta + huella) y método alternativo.<br>· <b>Comedor → BAJO.</b> El riesgo es mínimo y lo importante es la fluidez: un FRR del 0,5 % evita colas; un FAR del 2 % es asumible porque lo peor que pasa es que alguien coma gratis.<br>· <b>Móvil → MEDIO.</b> Hay que equilibrar: un FRR del 8 % sería insufrible varias veces al día y un FAR del 2 % es demasiado para un dispositivo con el banco dentro. Además el móvil tiene <b>PIN de respaldo</b> y bloqueo tras varios fallos.<br><b>2) Cálculo</b><br>Intentos al día = 30 × 4 = <span class='n'>120</span>. Falsos rechazos = 120 × 8 % = <b>9,6 ≈ 10 rechazos al día</b>.<br><b>Problema:</b> unos 10 incidentes diarios generan <b>colas, pérdida de tiempo, llamadas al departamento de IT</b> y, sobre todo, que la gente busque atajos (dejar la puerta abierta, pasar varias personas con un solo acceso), lo que <b>empeora la seguridad real</b>.<br><b>Soluciones:</b> <b>bajar el umbral a medio</b> si la zona no es crítica (el FRR pasaría a 2 % ≈ 2-3 rechazos diarios); permitir un <b>segundo intento</b> automático antes de contar el rechazo; <b>reenrolar</b> con más capturas a los empleados que fallan a menudo; usar <span class='si'>MFA</span> (tarjeta + huella) para poder bajar el umbral sin perder seguridad; mejorar el <b>sensor</b> (ultrasonido o venas de la palma, más tolerantes); y ofrecer siempre un <span class='si'>método alternativo</span> para los casos de FTE."],
+["¿Es <b>verificación (1:1)</b> o <b>identificación (1:N)</b>?<br>1) Desbloqueas tu móvil con la huella · 2) Pasas la tarjeta por el lector del CPD y luego pones el dedo · 3) Una puerta se abre sola al reconocer la cara de cualquier empleado registrado · 4) Entras en la aplicación del banco con la cara · 5) Un sistema busca a una persona concreta comparando su foto con las de una base de datos · 6) Fichas en el trabajo con un lector de huellas","<b>1) Verificación 1:1</b> — se compara con la plantilla del dueño del dispositivo.<br><b>2) Verificación 1:1</b> — la tarjeta identifica primero; además es <span class='si'>MFA</span> (algo que tienes + algo que eres).<br><b>3) Identificación 1:N</b> — no hay identificación previa, se compara con todas las plantillas.<br><b>4) Verificación 1:1</b> — la sesión o el usuario ya está identificado.<br><b>5) Identificación 1:N</b> — búsqueda contra toda la base de datos.<br><b>6) Depende:</b> si pasas tarjeta o tecleas un código antes, es <span class='n'>1:1</span>; si solo pones el dedo y el sistema averigua quién eres, es <b>1:N</b>. <i>(Añade que, según la AEPD, fichar con biometría en general <b>no está justificado</b>.)</i>"],
+["¿Qué <b>técnica biométrica</b> recomendarías y por qué?<br>1) Sala de servidores de una entidad financiera · 2) Una obra, con trabajadores con guantes y manos sucias o con cortes · 3) Un quirófano, con personal con mascarilla, gorro y guantes · 4) Acceso de los socios a un gimnasio · 5) Inicio de sesión en los portátiles de una consultoría · 6) Un laboratorio con zonas de distinto nivel de seguridad","<b>1) Iris o venas de la palma, combinadas con tarjeta (MFA) y umbral alto.</b> Precisión muy alta, difíciles de falsificar y sin contacto; el coste se justifica en una zona crítica. Con <span class='si'>detección de vida</span> y registro de accesos.<br><b>2) Iris o reconocimiento facial</b> — <b>sin contacto</b>: la huella falla con guantes, suciedad y cortes (alto FRR y FTE). Si debe ser barato, facial con buena iluminación; alternativa no biométrica siempre disponible (tarjeta).<br><b>3) Iris o venas de la palma</b> — sin contacto y <b>no afectadas por mascarilla, gorro ni guantes</b>, que descartan huella y facial. Además evita contaminación en un entorno estéril.<br><b>4) Huella dactilar</b> — barata, rápida, muy aceptada y suficiente para un riesgo bajo, con umbral bajo-medio. <i>Importante: hay que valorar la <b>proporcionalidad</b> (RGPD art. 9); si basta una tarjeta, la biometría no es necesaria, y debe haber alternativa.</i><br><b>5) Huella o facial, la integrada en el portátil</b> — coste nulo (ya la traen), cómoda y con la <b>plantilla en el propio dispositivo</b> (1:1, lo menos invasivo); como <b>segundo factor</b> junto a la contraseña, no en sustitución.<br><b>6) Combinación por zonas:</b> huella o tarjeta en el acceso general y, en las zonas críticas, <b>MFA con iris o venas</b> y <b>umbral más alto</b>. Es la aplicación del <span class='si'>mínimo privilegio</span> y de “ajustar el umbral al riesgo de cada zona”."],
+["Una empresa quiere implantar <b>reconocimiento facial para fichar</b> la jornada de sus 40 empleados. Valora la propuesta desde el punto de vista <b>técnico y legal</b> y propón alternativas.","<b>Valoración legal (lo decisivo):</b> los datos biométricos que identifican de forma única son <b>categoría especial</b> (<b>RGPD art. 9</b>) y su tratamiento está <span class='no'>prohibido salvo excepciones</span>. La <b>guía de la AEPD de noviembre de 2023</b> es muy clara: para el <b>registro de jornada</b>, en general, <span class='no'>no está justificada</span>; el <b>consentimiento del trabajador no suele ser válido</b> por el <b>desequilibrio</b> con la empresa; y si existe una <b>alternativa menos invasiva</b> (tarjeta, código, PIN), la biometría <b>deja de ser necesaria y proporcionada</b>. Haría falta además una <b>evaluación de impacto (EIPD)</b>, que con toda probabilidad concluiría que no procede. Si además el sistema analizara estados de ánimo, el <b>Reglamento europeo de IA</b> prohíbe el <b>reconocimiento de emociones en el trabajo</b>.<br><b>Valoración técnica:</b> el facial 2D es de precisión <b>media</b> y sensible a iluminación, mascarillas, gafas y envejecimiento → <b>FRR</b> alto y discusiones sobre el fichaje; exige <b>identificación 1:N</b> con <b>base de datos centralizada</b> de plantillas, que es el escenario de <b>mayor riesgo</b> si hay una brecha, y la plantilla comprometida <span class='no'>no se puede cambiar</span>; habría <b>FTE</b> y necesidad de método alternativo de todos modos; y requiere <span class='si'>detección de vida</span> para que no valga una foto.<br><b>Conclusión y alternativas:</b> <span class='no'>no implantarlo</span>. Usar <b>tarjeta o llavero NFC</b> con PIN, una <b>app de fichaje</b> en el móvil corporativo o un <b>código personal</b> en un terminal: cumplen la obligación de registro de jornada sin tratar datos especiales. Si se quisiera reforzar el control de acceso a una <b>zona realmente crítica</b> (el CPD, no la entrada), entonces sí cabría biometría, pero con <span class='si'>verificación 1:1</span>, <b>plantilla en la tarjeta o el dispositivo</b> (<i>match-on-card</i>), cifrada, con <span class='si'>detección de vida</span>, <b>EIPD</b> previa, información a los trabajadores, borrado en las bajas y <span class='si'>método alternativo</span> siempre disponible."]
+];
+/* ============ CHULETA ============ */
+const CHULETA = [
+ {h:"Fórmulas que hay que llevar sabidas", html:`<div class="note form"><span class="lbl">Contraseñas</span><span class="eq">bits = L × log₂(N)</span><span class="eq">tiempo = N^L ÷ intentos por segundo</span>N: dígitos 10 · minúsculas 26 · may+min+díg 62 · imprimibles 94 · diceware 7.776 (12,9 bits/palabra)</div>
+ <div class="note form"><span class="lbl">SAI</span><span class="eq">W = VA × FP</span><span class="eq">Potencia mínima del SAI = carga total ÷ 0,75</span><span class="eq">t(h) ≈ (V_bat × Ah × η) ÷ P(W)</span>η ≈ 0,85-0,9 · baterías en serie: suma las tensiones (2 × 12 V = 24 V) · battery.runtime de NUT viene en <b>segundos</b></div>
+ <div class="note form"><span class="lbl">Biometría</span><span class="eq">FAR = falsas aceptaciones ÷ intentos de impostores</span><span class="eq">FRR = falsos rechazos ÷ intentos legítimos</span>Pásalo a % multiplicando por 100 · nº de rechazos al día = personas × pasadas × FRR</div>
+ <div class="note form"><span class="lbl">ACL POSIX</span><span class="eq">permiso efectivo = permiso asignado AND máscara</span>Excepciones que NO pasan por la máscara: el <b>propietario</b> (<code>user::</code>) y <b>otros</b> (<code>other::</code>)</div>`},
+ {h:"Números que caen en el test", html:`<div class="tw"><table><thead><tr><th>Dato</th><th>Valor</th></tr></thead><tbody>
+ <tr><td>Red eléctrica en España</td><td class="num"><span class='n'>230 V · 50 Hz</span></td></tr>
+ <tr><td>Temperatura del <b>CPD</b></td><td class="num"><span class='n'>17-19 °C</span></td></tr>
+ <tr><td>Temperatura de la sala del <b>SAI</b></td><td class="num"><span class='n'>20-25 °C</span></td></tr>
+ <tr><td>Carga máxima recomendada del SAI</td><td class="num"><span class='n'>70-80 %</span> (÷ 0,75)</td></tr>
+ <tr><td>Vida de las baterías <b>VRLA</b></td><td class="num"><span class='n'>3-5 años</span></td></tr>
+ <tr><td>Rendimiento del inversor η</td><td class="num"><span class='n'>0,85-0,9</span></td></tr>
+ <tr><td>Factor de potencia de los SAI</td><td class="num"><span class='n'>0,6 - 1</span></td></tr>
+ <tr><td>Conmutación off-line / interactivo / on-line</td><td class="num"><span class='n'>2-10 ms / 2-4 ms / 0</span></td></tr>
+ <tr><td>Longitud mínima NIST 2025</td><td class="num"><span class='n'>15</span> (único factor) · <span class='n'>8</span> (con MFA) · permitir <span class='n'>64</span></td></tr>
+ <tr><td>Intentos por segundo de una GPU actual (offline, MD5)</td><td class="num"><span class='n'>10¹⁰</span> (10.000 millones)</td></tr>
+ <tr><td>Prueba de corte simulado / autotest / calibración</td><td class="num"><b>semestral / mensual / anual</b></td></tr>
+ <tr><td>Guía de la AEPD sobre presencia biométrica</td><td class="num"><b>noviembre de 2023</b></td></tr>
+ <tr><td>Artículo del RGPD sobre datos biométricos</td><td class="num"><b>art. 9</b></td></tr>
+ <tr><td>Norma de los tipos de SAI</td><td class="num"><b>IEC 62040-3</b></td></tr>
+ </tbody></table></div>`},
+ {h:"Listas numeradas que suelen pedir enteras", html:`<div class="tw"><table><thead><tr><th>Lista</th><th>Elementos</th></tr></thead><tbody>
+ <tr><td><b>CIDAN</b></td><td>Confidencialidad · Integridad · Disponibilidad · Autenticidad · No repudio</td></tr>
+ <tr><td><b>Plan de contingencia (5)</b></td><td>Evaluación · Planificación · Pruebas · Ejecución · Recuperación</td></tr>
+ <tr><td><b>IAA (3)</b></td><td>Identificación · Autenticación · Autorización</td></tr>
+ <tr><td><b>Principios ACL (6)</b></td><td>Mínimo privilegio · Necesidad de saber · Denegar por defecto · Segregación de funciones · Permisos a grupos · Trazabilidad</td></tr>
+ <tr><td><b>Modelos de acceso (4)</b></td><td>DAC (propietario) · MAC (sistema/etiquetas) · RBAC (roles) · ABAC (atributos/contexto)</td></tr>
+ <tr><td><b>Orden NTFS (4)</b></td><td>Denegar explícito · Permitir explícito · Denegar heredado · Permitir heredado</td></tr>
+ <tr><td><b>Reglas de oro ACL de red (4)</b></td><td>En orden · Primera coincidencia y para · Deny implícito final · Lo específico antes</td></tr>
+ <tr><td><b>Factores de autenticación (3)</b></td><td>Algo que sabes · algo que tienes · algo que eres</td></tr>
+ <tr><td><b>Componentes del SAI (5)</b></td><td>Rectificador/cargador · Baterías · Inversor · Bypass · Comunicación</td></tr>
+ <tr><td><b>Apagado ordenado</b></td><td>Máquinas virtuales → servidores de aplicaciones → bases de datos → NAS</td></tr>
+ <tr><td><b>Propiedades biométricas (7)</b></td><td>Universalidad · Unicidad · Permanencia · Mensurabilidad · Rendimiento · Aceptabilidad · Resistencia al fraude</td></tr>
+ <tr><td><b>Tasas biométricas (4)</b></td><td>FAR (seguridad) · FRR (comodidad) · EER (comparar) · FTE (exclusión)</td></tr>
+ <tr><td><b>Riesgos físicos (6)</b></td><td>Obsolescencia · Fenómenos naturales · Eléctricos · Electromagnéticos · Humanos involuntarios · Humanos deliberados</td></tr>
+ </tbody></table></div>`},
+ {h:"Pares que se confunden", html:`<div class="tw"><table><thead><tr><th>Esto</th><th>…no es esto</th></tr></thead><tbody>
+ <tr><td><b>FAR</b> = entra quien no debe → <b>seguridad</b></td><td><b>FRR</b> = no entra quien sí debe → <b>comodidad</b></td></tr>
+ <tr><td><span class='si'>Verificación 1:1</span> = “¿eres quien dices ser?”</td><td><b>Identificación 1:N</b> = “¿quién eres?”</td></tr>
+ <tr><td><b>Amenaza</b> = agente que puede dañar</td><td><b>Vulnerabilidad</b> = debilidad propia</td></tr>
+ <tr><td><b>Activa</b> = previene antes</td><td><b>Pasiva</b> = minimiza después</td></tr>
+ <tr><td><b>Física</b> = el aparato y la sala</td><td><b>Lógica</b> = software, datos y comunicaciones</td></tr>
+ <tr><td><b>VA</b> = potencia aparente</td><td><b>W</b> = potencia real (W = VA × FP)</td></tr>
+ <tr><td><b>Credential stuffing</b> = credenciales de otra web</td><td><b>Password spraying</b> = pocas contraseñas en muchas cuentas</td></tr>
+ <tr><td><b>Interactivo (VI)</b> = AVR, regula sin batería</td><td><b>On-line (VFI)</b> = siempre por el inversor, conmutación 0</td></tr>
+ <tr><td><b>Hash</b> = integridad, un solo sentido</td><td><b>Cifrado</b> = confidencialidad, reversible</td></tr>
+ <tr><td><b>Sal</b> = aleatoria por usuario, evita rainbow</td><td><b>Hash lento</b> = Argon2id/bcrypt, frena la fuerza bruta</td></tr>
+ <tr><td><b>CPD 17-19 °C</b></td><td><b>Sala del SAI 20-25 °C</b></td></tr>
+ <tr><td><b>DAC</b> = decide el propietario</td><td><b>MAC</b> = decide el sistema por etiquetas</td></tr>
+ </tbody></table></div>`},
+ {h:"Cómo atacar el examen el lunes", html:`<ol class="steps">
+ <li><b>Reparto de tiempo.</b> El test son 3 puntos en 20 preguntas (0,15 cada una): no te atasques, marca y sigue. Los <b>casos prácticos valen 4 puntos en 14 preguntas</b> (≈0,29 cada una): son los que más dan, déjate tiempo para ellos.</li>
+ <li><b>En las preguntas cortas, estructura.</b> Define → clasifica → ejemplo. Si la pregunta dice “define X y pon un ejemplo”, las dos cosas puntúan; dar solo la definición te deja a medias.</li>
+ <li><b>En los cálculos, escribe la fórmula antes de los números</b> y acaba con la <b>unidad</b>. Si el resultado sale raro, deja el planteamiento escrito: suele puntuar aunque falle la aritmética.</li>
+ <li><b>En los casos de SAI</b>, el orden es siempre: sumar W → dividir entre 0,75 → pasar a VA con el FP → autonomía → tipo y forma de onda. Y remata con “<span class='si'>confirmar en las tablas del fabricante</span>”.</li>
+ <li><b>En los casos de ACL</b>, aplica el algoritmo: en Linux <b>asignado AND máscara</b> (salvo propietario y otros); en Windows <b>denegar explícito gana</b> y por red <b>el más restrictivo</b>; en red <b>primera coincidencia y para</b>.</li>
+ <li><b>En los de biometría</b>, razona por <b>qué error duele más</b>: zona crítica → umbral alto; zona de paso → umbral bajo. Y añade siempre <b>MFA, detección de vida, método alternativo</b> y el <b>RGPD art. 9</b> si hay datos de trabajadores.</li>
+ <li><b>En los de clasificación</b>, da <b>las dos clasificaciones</b> (física/lógica y activa/pasiva), el <b>objeto protegido</b> y las <b>letras del CIDAN</b>. Son tres cosas, no una.</li>
+ <li><b>Nunca dejes nada en blanco.</b> En las cortas y prácticas, media respuesta bien razonada puntúa; el blanco no.</li></ol>`}
+];
+
+/* ============ APP ============ */
+const LEYENDA = `<div class="leyenda"><span class="tt">Qué significa cada color</span>
+ <span class="lg-t">término clave</span><span class="lg-n">cifra o dato exacto</span>
+ <span class="lg-no">prohibido · nunca · riesgo</span><span class="lg-si">correcto · recomendado</span>
+ <span class="lg-d">definición literal</span></div>`;
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const SECCIONES=[["temario","Temario"],["chuleta","Chuleta"],["glosario","Glosario"],["flash","Flashcards"],["examen","Simulacro"]];
+let actual="temario", temaActual="t1";
+const SAFE=["temario","chuleta","glosario","flash","examen"];
+
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+
+/* tema claro/oscuro */
+(function(){const t=ls("tema");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);
+ const TAM=[16,17,18,19,21,23];let ti=parseInt(ls("fs")||"2",10);if(isNaN(ti)||ti<0||ti>=TAM.length)ti=2;
+ const aplicar=()=>{document.documentElement.style.setProperty("--fs",TAM[ti]+"px");ls("fs",String(ti));};aplicar();
+ $("#fsup").addEventListener("click",()=>{if(ti<TAM.length-1){ti++;aplicar()}});
+ $("#fsdown").addEventListener("click",()=>{if(ti>0){ti--;aplicar()}});
+ $("#themebtn").addEventListener("click",()=>{const cur=document.documentElement.getAttribute("data-theme");
+ const dark=cur?cur==="dark":matchMedia("(prefers-color-scheme:dark)").matches;const n=dark?"light":"dark";
+ document.documentElement.setAttribute("data-theme",n);ls("tema",n)})})();
+
+/* cuenta atrás */
+(function(){const el=$("#countdown");const hoy=new Date();const d=hoy.getDay();
+ let dias=(1-d+7)%7; if(dias===0&&hoy.getHours()>=15)dias=7;
+ el.textContent = dias===0?"El examen es HOY":(dias===1?"Examen: mañana":"Examen: en "+dias+" días");})();
+
+/* navegación */
+function pintarNav(){$("#nav").innerHTML=SECCIONES.map(([id,t])=>
+ `<button data-sec="${id}" aria-current="${actual===id}">${t}</button>`).join("");
+ $$("#nav button").forEach(b=>b.addEventListener("click",()=>ir(b.dataset.sec)));}
+function ir(sec){actual=sec;pintarNav();render();window.scrollTo({top:0,behavior:"instant"});
+ try{history.replaceState(null,"","#"+sec)}catch(e){}}
+
+/* ---- render secciones ---- */
+function render(){const m=$("#main");
+ if(actual==="temario")m.innerHTML=vistaTemario();
+ else if(actual==="chuleta")m.innerHTML=vistaChuleta();
+ else if(actual==="glosario"){m.innerHTML=vistaGlosario();engancharGlosario();}
+ else if(actual==="flash"){m.innerHTML=`<div class="sechead"><span class="eyebrow">Memorización rápida</span><h2>Flashcards</h2><p class="lede">${FLASH.length} tarjetas de definiciones y datos. Toca la tarjeta para ver la respuesta.</p></div><div id="fcmount"></div>`;montarFlash();}
+ else if(actual==="examen"){m.innerHTML=`<div id="exmount"></div>`;montarExamen();}
+ if(actual==="temario")engancharTemario();}
+
+function vistaTemario(){
+ const t=TEMAS.find(x=>x.id===temaActual)||TEMAS[0];
+ return `<div class="sechead"><span class="eyebrow">RA1 · Seguridad Informática · 2º SMR</span><h2>Temario resumido</h2>
+ <p class="lede">Los 7 temas en orden, con los puntos clave, las tablas del profesor y las trampas de cada uno.</p></div>
+ ${LEYENDA}
+ <div class="cols"><div class="toc">${TEMAS.map(x=>`<button data-t="${x.id}" aria-current="${x.id===t.id}"><span class="tn">${x.n}</span><span class="tl">${x.short}</span></button>`).join("")}</div>
+ <div class="topic"><div class="ra">Tema ${t.n} de 7</div><h3>${t.title}</h3><p class="sub-ra">${t.ra}</p>
+ ${t.blocks.map(b=>`<div class="block"><h4>${b.h}</h4>${b.html}</div>`).join("")}
+ <div class="row" style="justify-content:space-between;margin-top:40px;max-width:78ch">
+ ${t.n>1?`<button class="btn" data-t="${TEMAS[t.n-2].id}">← ${TEMAS[t.n-2].short}</button>`:'<span></span>'}
+ ${t.n<TEMAS.length?`<button class="btn primary" data-t="${TEMAS[t.n].id}">${TEMAS[t.n].short} →</button>`:`<button class="btn primary" data-sec="examen">Ir al simulacro →</button>`}
+ </div></div></div>`;}
+function engancharTemario(){$$("[data-t]").forEach(b=>b.addEventListener("click",()=>{temaActual=b.dataset.t;render();window.scrollTo({top:0,behavior:"instant"})}));
+ $$("#main [data-sec]").forEach(b=>b.addEventListener("click",()=>ir(b.dataset.sec)));}
+
+function vistaChuleta(){return `<div class="sechead"><span class="eyebrow">Última revisión antes de entrar</span><h2>Chuleta</h2>
+ <p class="lede">Fórmulas, cifras exactas, listas que piden enteras y los pares que más se confunden.</p></div>
+ ${LEYENDA}
+ <div class="examintro"><div class="part"><div class="n">20</div><div class="t">Test</div><div class="p">3 puntos · 0,15 cada una</div></div>
+ <div class="part"><div class="n">6</div><div class="t">Preguntas cortas</div><div class="p">3 puntos · 0,5 cada una</div></div>
+ <div class="part"><div class="n">14</div><div class="t">Casos prácticos</div><div class="p">4 puntos · ≈0,29 cada una</div></div></div>
+ ${CHULETA.map(b=>`<div class="block"><h4>${b.h}</h4>${b.html}</div>`).join("")}`;}
+
+function vistaGlosario(){return `<div class="sechead"><span class="eyebrow">${GLOSARIO.length} términos</span><h2>Glosario</h2>
+ <p class="lede">Busca por palabra o por tema. Útil para las preguntas cortas: la mayoría son una definición.</p></div>
+ <input class="search" id="gq" type="search" placeholder="Buscar: sal, FAR, máscara, VFI, RBAC…" autocomplete="off">
+ <div class="glist" id="glist">${GLOSARIO.map(g=>`<dl class="gitem"><dt>${g[0]}</dt><dd>${g[1]}</dd><span class="tag">${g[2]}</span></dl>`).join("")}</div>`;}
+function engancharGlosario(){const q=$("#gq");q.addEventListener("input",()=>{const v=q.value.toLowerCase().trim();
+ $("#glist").innerHTML=GLOSARIO.filter(g=>!v||(g[0]+" "+g[1]+" "+g[2]).toLowerCase().includes(v))
+ .map(g=>`<dl class="gitem"><dt>${g[0]}</dt><dd>${g[1]}</dd><span class="tag">${g[2]}</span></dl>`).join("")
+ ||`<p class="lede">Sin resultados para “${v}”.</p>`;});}
+
+/* ---- flashcards ---- */
+const FLASH = GLOSARIO.map(g=>["¿Qué es "+g[0]+"?",g[1],g[2]]).concat([
+ ["Las 5 etapas del plan de contingencia","Evaluación · Planificación · Pruebas · Ejecución · Recuperación","Tema 2"],
+ ["Las 3 fases del control de acceso (IAA)","Identificación · Autenticación · Autorización (las ACL actúan aquí)","Tema 4"],
+ ["Orden de evaluación NTFS","Denegar explícito → Permitir explícito → Denegar heredado → Permitir heredado","Tema 4"],
+ ["Carpeta compartida por red: qué permiso gana","El más restrictivo entre recurso compartido y NTFS. En acceso local solo cuenta el NTFS","Tema 4"],
+ ["Las 4 reglas de oro de una ACL de red","En orden de arriba abajo · primera coincidencia y se deja de mirar · deny implícito al final · lo específico antes que lo general","Tema 4"],
+ ["Fórmula de entropía","bits = L × log₂(N). Cada bit duplica los intentos","Tema 5"],
+ ["Longitud mínima según NIST 2025","15 caracteres si es el único factor, 8 con MFA, y permitir al menos 64","Tema 5"],
+ ["MFA de más débil a más fuerte","SMS < app con código TOTP < notificación con número < llave FIDO2 o passkey","Tema 5"],
+ ["Fórmula W / VA","W = VA × FP. Hay que cumplir los dos límites del SAI","Tema 6"],
+ ["Potencia mínima del SAI","carga total ÷ 0,75 (que trabaje al 70-80 %)","Tema 6"],
+ ["Fórmula de autonomía del SAI","t(h) ≈ (V_bat × Ah × η) ÷ P(W), con η ≈ 0,85-0,9. Es optimista: usar las tablas del fabricante","Tema 6"],
+ ["Orden del apagado ordenado","Máquinas virtuales → servidores de aplicaciones → bases de datos → NAS. Luego el SAI se apaga","Tema 6"],
+ ["Qué NO se enchufa a la batería del SAI","Impresoras láser (picos del fusor), calefactores, aire acondicionado, frigoríficos, cafeteras, motores y regletas encadenadas","Tema 6"],
+ ["Los 3 tipos de SAI y su conmutación","Off-line/VFD 2-10 ms · interactivo/VI 2-4 ms con AVR · on-line/VFI conmutación cero y senoidal pura","Tema 6"],
+ ["Fórmulas de FAR y FRR","FAR = falsas aceptaciones ÷ intentos de impostores · FRR = falsos rechazos ÷ intentos legítimos","Tema 7"],
+ ["Si subo el umbral biométrico…","Baja el FAR (más seguro) y sube el FRR (menos cómodo)","Tema 7"],
+ ["Las 7 propiedades de una buena característica biométrica","Universalidad · unicidad · permanencia · mensurabilidad · rendimiento · aceptabilidad · resistencia al fraude","Tema 7"],
+ ["Permiso efectivo en una ACL POSIX","Permiso asignado AND máscara. El propietario y 'otros' no pasan por la máscara","Tema 4"],
+ ["Temperaturas a no confundir","CPD: 17-19 °C · sala del SAI: 20-25 °C","Temas 3 y 6"],
+ ["Los dos criterios de clasificación de la seguridad","Según qué protege: física o lógica · según cuándo actúa: activa o pasiva","Tema 2"]
+]);
+let fcOrden=[],fcIdx=0,fcVisto=false;
+function montarFlash(){if(!fcOrden.length)fcOrden=FLASH.map((_,i)=>i).sort(()=>Math.random()-.5);pintarFlash();}
+function pintarFlash(){const i=fcOrden[fcIdx],c=FLASH[i];
+ $("#fcmount").innerHTML=`<div class="fcwrap"><div class="card" id="fccard">
+ <div class="q">${c[0]}</div>${fcVisto?`<div class="a">${c[1]}</div>`:`<div class="hintflip">Toca para ver la respuesta</div>`}
+ <div class="hintflip" style="margin-top:4px">${c[2]}</div></div>
+ <div class="row"><button class="btn" id="fcprev" ${fcIdx===0?"disabled":""}>← Anterior</button>
+ <button class="btn primary" id="fcnext">${fcIdx===fcOrden.length-1?"Volver a empezar":"Siguiente →"}</button>
+ <button class="btn" id="fcshuffle">Mezclar</button></div>
+ <div class="meta">${fcIdx+1} de ${fcOrden.length}</div></div>`;
+ $("#fccard").addEventListener("click",()=>{fcVisto=!fcVisto;pintarFlash()});
+ $("#fcprev").addEventListener("click",()=>{if(fcIdx>0){fcIdx--;fcVisto=false;pintarFlash()}});
+ $("#fcnext").addEventListener("click",()=>{fcIdx=(fcIdx+1)%fcOrden.length;fcVisto=false;pintarFlash()});
+ $("#fcshuffle").addEventListener("click",()=>{fcOrden=FLASH.map((_,i)=>i).sort(()=>Math.random()-.5);fcIdx=0;fcVisto=false;pintarFlash()});}
+/* ---- simulacro ---- */
+const N_TEST=20,N_CORTA=6,N_PRAC=14, P_TEST=3/N_TEST, P_CORTA=3/N_CORTA, P_PRAC=4/N_PRAC;
+let ex=null;
+function muestra(arr,n){const i=arr.map((_,k)=>k).sort(()=>Math.random()-.5).slice(0,n);return i;}
+function nuevoExamen(){ex={t:muestra(TEST,N_TEST),c:muestra(CORTAS,N_CORTA),p:muestra(PRACTICOS,N_PRAC),
+ resT:{},resC:{},resP:{},corregido:false};}
+function montarExamen(){if(!ex)return pintarIntro();pintarExamen();}
+
+function pintarIntro(){$("#exmount").innerHTML=`<div class="sechead"><span class="eyebrow">Mismo formato que el examen del lunes</span><h2>Simulacro de examen</h2>
+ <p class="lede">Las preguntas se eligen al azar del banco cada vez que empiezas, así que puedes repetirlo varias veces y no te saldrá lo mismo.</p></div>
+ <div class="examintro">
+ <div class="part"><div class="n">20</div><div class="t">Tipo test</div><div class="p">3 puntos sobre 10 · se corrigen solas</div></div>
+ <div class="part"><div class="n">6</div><div class="t">Preguntas cortas</div><div class="p">3 puntos · escribes y comparas con la solución</div></div>
+ <div class="part"><div class="n">14</div><div class="t">Casos prácticos</div><div class="p">4 puntos · cálculos y desarrollo</div></div></div>
+ <div class="note tip"><span class="lbl">Cómo se corrige</span>El test se corrige automáticamente. En las cortas y los casos prácticos escribes tu respuesta, ves la solución y te puntúas tú con los botones <b>Bien</b> / <b>A medias</b> / <b>Mal</b>: así sale la nota final sobre 10. Sé honesto contigo, es lo que hace que sirva.</div>
+ <div class="row" style="margin-top:20px"><button class="btn primary" id="exstart">Empezar el simulacro</button></div>
+ <p class="meta" style="margin-top:14px">Banco disponible: ${TEST.length} preguntas de test · ${CORTAS.length} cortas · ${PRACTICOS.length} casos prácticos</p>`;
+ $("#exstart").addEventListener("click",()=>{nuevoExamen();pintarExamen();window.scrollTo({top:0,behavior:"instant"})});}
+
+function pintarExamen(){const C=ex.corregido;
+ let h=`<div class="sechead"><span class="eyebrow">${C?"Corregido":"En curso"}</span><h2>Simulacro de examen</h2></div>`;
+ if(C)h+=tarjetaNota();
+ h+=`<div class="partbar">Parte 1 · Tipo test <span>20 preguntas · 3 puntos</span></div>`;
+ ex.t.forEach((qi,n)=>{const q=TEST[qi];const sel=ex.resT[n];
+  h+=`<div class="q"><div class="qhead"><span class="qnum">${n+1}</span><span class="qtext">${q[0]}</span></div><div class="opts">`;
+  q[1].forEach((o,oi)=>{let cls="opt";
+   if(C){if(oi===q[2])cls+=" good";else if(sel===oi)cls+=" bad";}
+   h+=`<label class="${cls}"><input type="radio" name="t${n}" value="${oi}" ${sel===oi?"checked":""} ${C?"disabled":""} data-t="${n}"><span>${o}</span></label>`;});
+  h+=`</div>`;
+  if(C)h+=`<div class="sol"><span class="lbl">${sel===q[2]?"Correcta":(sel===undefined?"Sin contestar":"Incorrecta")}</span>${q[3]}</div>`;
+  h+=`</div>`;});
+ h+=`<div class="partbar">Parte 2 · Preguntas cortas <span>6 preguntas · 3 puntos</span></div>`;
+ ex.c.forEach((qi,n)=>{const q=CORTAS[qi];
+  h+=`<div class="q"><div class="qhead"><span class="qnum">${n+1}</span><span class="qtext">${q[0]}</span></div>
+  <textarea id="ca${n}" ${C?"readonly":""} placeholder="Escribe tu respuesta…">${ex.resC[n]&&ex.resC[n].txt||""}</textarea>`;
+  if(C)h+=`<div class="sol"><span class="lbl">Solución</span>${q[1]}</div>`+autoeval("c",n);
+  h+=`</div>`;});
+ h+=`<div class="partbar">Parte 3 · Casos prácticos <span>14 preguntas · 4 puntos</span></div>`;
+ ex.p.forEach((qi,n)=>{const q=PRACTICOS[qi];
+  h+=`<div class="q"><div class="qhead"><span class="qnum">${n+1}</span><span class="qtext">${q[0]}</span></div>
+  <textarea id="pa${n}" ${C?"readonly":""} placeholder="Desarrolla tu respuesta: fórmula, cálculo y unidades…">${ex.resP[n]&&ex.resP[n].txt||""}</textarea>`;
+  if(C)h+=`<div class="sol"><span class="lbl">Solución</span>${q[1]}</div>`+autoeval("p",n);
+  h+=`</div>`;});
+ h+=`<div class="sticky-actions"><div class="sticky-inner">
+ ${C?`<button class="btn primary" id="exnew">Otro simulacro</button><button class="btn" id="exstats">Recalcular nota</button>`
+ :`<button class="btn primary" id="exfin">Corregir el examen</button><button class="btn" id="exnew">Empezar de nuevo</button>`}
+ </div></div>`;
+ $("#exmount").innerHTML=h;
+ $$('input[data-t]').forEach(r=>r.addEventListener("change",()=>{ex.resT[+r.dataset.t]=+r.value;}));
+ if(!C){
+  ex.c.forEach((_,n)=>$("#ca"+n).addEventListener("input",e=>{ex.resC[n]=Object.assign({},ex.resC[n],{txt:e.target.value})}));
+  ex.p.forEach((_,n)=>$("#pa"+n).addEventListener("input",e=>{ex.resP[n]=Object.assign({},ex.resP[n],{txt:e.target.value})}));
+  $("#exfin").addEventListener("click",()=>{ex.corregido=true;pintarExamen();window.scrollTo({top:0,behavior:"instant"})});
+ }else{
+  $$(".sbtn").forEach(b=>b.addEventListener("click",()=>{
+   const k=b.dataset.k,n=+b.dataset.n,v=parseFloat(b.dataset.v);
+   const store=k==="c"?ex.resC:ex.resP;store[n]=Object.assign({},store[n],{nota:v});
+   $$(`.sbtn[data-k="${k}"][data-n="${n}"]`).forEach(o=>o.setAttribute("aria-pressed",String(parseFloat(o.dataset.v)===v)));
+   $("#notaBox").innerHTML=tarjetaNotaInner();}));
+  $("#exstats").addEventListener("click",()=>{$("#notaBox").innerHTML=tarjetaNotaInner();window.scrollTo({top:0,behavior:"smooth"})});
+ }
+ const nw=$("#exnew");if(nw)nw.addEventListener("click",()=>{nuevoExamen();pintarExamen();window.scrollTo({top:0,behavior:"instant"})});}
+
+function autoeval(k,n){const store=k==="c"?ex.resC:ex.resP;const v=store[n]&&store[n].nota;
+ return `<div class="selfrow"><span class="lab">Tu nota</span>
+ <button class="sbtn s1" data-k="${k}" data-n="${n}" data-v="1" aria-pressed="${v===1}">Bien</button>
+ <button class="sbtn s05" data-k="${k}" data-n="${n}" data-v="0.5" aria-pressed="${v===0.5}">A medias</button>
+ <button class="sbtn s0" data-k="${k}" data-n="${n}" data-v="0" aria-pressed="${v===0}">Mal</button></div>`;}
+
+function calcular(){let t=0;ex.t.forEach((qi,n)=>{if(ex.resT[n]===TEST[qi][2])t++;});
+ let c=0,cEval=0;ex.c.forEach((_,n)=>{const r=ex.resC[n];if(r&&r.nota!==undefined){c+=r.nota;cEval++}});
+ let p=0,pEval=0;ex.p.forEach((_,n)=>{const r=ex.resP[n];if(r&&r.nota!==undefined){p+=r.nota;pEval++}});
+ return {acierto:t,pt:t*P_TEST,pc:c*P_CORTA,pp:p*P_PRAC,cEval,pEval,
+  total:t*P_TEST+c*P_CORTA+p*P_PRAC};}
+function tarjetaNota(){return `<div id="notaBox">${tarjetaNotaInner()}</div>`;}
+function tarjetaNotaInner(){const r=calcular();const n=r.total;
+ const pend=(N_CORTA-r.cEval)+(N_PRAC-r.pEval);
+ return `<div class="scorecard"><div class="lbl">Nota del simulacro</div><div class="big">${n.toFixed(2)}</div>
+ <div class="lbl">sobre 10${n>=5?" · aprobado":""}</div>
+ <div class="brk">
+ <div>Test<b>${r.acierto}/${N_TEST}</b>${r.pt.toFixed(2)} / 3,00</div>
+ <div>Cortas<b>${r.pc.toFixed(2)}</b>de 3,00</div>
+ <div>Prácticos<b>${r.pp.toFixed(2)}</b>de 4,00</div></div>
+ ${pend>0?`<p class="meta" style="margin-top:14px">Te quedan <b>${pend}</b> respuestas por puntuarte más abajo. La nota sube a medida que las marcas.</p>`:``}
+ </div>`;}
+
+/* arranque */
+(function(){const h=(location.hash||"").replace("#","");if(SAFE.includes(h))actual=h;
+ pintarNav();render();})();
+</script>
+
+</body></html>
